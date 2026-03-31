@@ -15,31 +15,26 @@ from moon_card_game import (
 )
 
 CATEGORY_LABELS = {
-    "investigation": "조사",
-    "diplomacy": "외교",
-    "mystic": "신비",
-    "stealth": "잠행",
-    "technology": "기술",
-    "survival": "생존",
-    "combat": "전투",
-    "support": "지원",
+    "person": "인물",
+    "info": "정보",
+    "equipment": "장비",
 }
 TAG_LABELS = {
-    "investigation": "조사",
-    "urban": "도시",
-    "diplomacy": "외교",
-    "noble": "귀족",
-    "mystic": "신비",
-    "ritual": "의식",
-    "stealth": "잠행",
-    "criminal": "범죄",
-    "technology": "기술",
+    "route": "경로",
+    "street": "거리",
+    "negotiation": "교섭",
+    "public": "공공",
+    "shrine": "사당",
+    "support": "지원",
+    "covert": "잠입",
     "repair": "수리",
+    "fixer": "해결",
     "survival": "생존",
-    "trade": "거래",
+    "escort": "호위",
     "combat": "전투",
-    "honor": "명예",
-    "care": "치유",
+    "medical": "치료",
+    "evidence": "증거",
+    "permit": "허가",
 }
 RARITY_LABELS = {
     "common": "일반",
@@ -60,19 +55,55 @@ def format_rarity(rarity: str) -> str:
     return RARITY_LABELS.get(rarity, rarity)
 
 
-def format_instance_stats(card: CardDefinition, card_instance: CardInstance) -> str:
+def format_instance_stats(
+    game: GameState,
+    card: CardDefinition,
+    card_instance: CardInstance,
+) -> str:
+    equipment_bonus = (
+        game.equipment_bonus_for(card_instance.instance_id)
+        if card.category.value == "person"
+        else 0
+    )
+    if card.category.value == "equipment":
+        return f"보정 +{card_instance.effective_power(card)}"
+    if equipment_bonus > 0:
+        return (
+            f"대응력 {game.effective_power(card_instance.instance_id)} "
+            f"(기본 {card.power}{card_instance.power_bonus:+d}, 장비 +{equipment_bonus}) | "
+            f"내구 {card_instance.current_durability}/{card.max_durability}"
+        )
     return (
-        f"위력 {card_instance.effective_power(card)} "
+        f"대응력 {game.effective_power(card_instance.instance_id)} "
         f"(기본 {card.power}{card_instance.power_bonus:+d}) | "
         f"내구 {card_instance.current_durability}/{card.max_durability}"
     )
 
 
+def equipment_note(game: GameState, instance_id: str) -> str:
+    card = game.card_definition(instance_id)
+    card_instance = game.card_instance(instance_id)
+    if card.category.value == "equipment":
+        if not card_instance.equipped_to_instance_id:
+            return " | 장착 대상 없음"
+        target_instance = game.card_instance(card_instance.equipped_to_instance_id)
+        target_card = game.card_definition(card_instance.equipped_to_instance_id)
+        return f" | 장착 대상: {target_instance.display_name(target_card)}"
+    if card.category.value == "person":
+        equipped_names = [
+            equipment_instance.display_name(game.catalog[equipment_instance.card_id])
+            for equipment_instance in game.equipment_for(instance_id)
+        ]
+        if equipped_names:
+            return f" | 장착 장비: {', '.join(equipped_names)}"
+    return ""
+
+
 def print_intro() -> None:
     print("=" * 64)
-    print("달의 도시 - 카드 이벤트 프로토타입")
+    print("달의 도시 - 해결사 카드 프로토타입")
     print("=" * 64)
-    print("카드를 모으고 도시의 사건에 대응하며 안정도를 지키세요.")
+    print("도시의 해결사로서 의뢰와 사건을 처리하며 안정도를 지키세요.")
     print(
         "명령어: 숫자 = 카드 사용, info <n> = 카드 상세, "
         "collection = 소지 카드, save = 저장, "
@@ -94,8 +125,8 @@ def print_collection(game: GameState) -> None:
             print(
                 f"    {card_instance.display_name(card)} "
                 f"[{card_instance.instance_id}] "
-                f"({format_rarity(card.rarity)}) {format_instance_stats(card, card_instance)} "
-                f"[{format_tags(card.tags)}]"
+                f"({format_rarity(card.rarity)}) {format_instance_stats(game, card, card_instance)} "
+                f"[{format_tags(card.tags)}]{equipment_note(game, card_instance.instance_id)}"
             )
     print()
 
@@ -106,9 +137,12 @@ def print_status(game: GameState) -> None:
         return
     print("-" * 64)
     print(f"안정도: {game.stability} | 해결한 사건: {game.completed_events}")
-    print(f"사건: {event.title}")
+    print(f"의뢰/사건: {event.title}")
     print(event.description)
     print(f"필수 태그: {format_tags(event.required_tags)}")
+    if event.required_card_ids:
+        required_names = ", ".join(game.catalog[card_id].name for card_id in event.required_card_ids)
+        print(f"전용 정보: {required_names}")
     if event.bonus_tags:
         print(f"보너스 태그: {format_tags(event.bonus_tags)}")
     print()
@@ -124,7 +158,8 @@ def print_status(game: GameState) -> None:
             f"  {index}. {card_instance.display_name(card)} "
             f"[{card_instance.instance_id}] "
             f"[{format_category(card.category.value)} | {format_tags(card.tags)}] "
-            f"{format_instance_stats(card, card_instance)}"
+            f"{format_instance_stats(game, card, card_instance)}"
+            f"{equipment_note(game, instance_id)}"
         )
     print()
 
@@ -139,7 +174,10 @@ def print_card_detail(game: GameState, hand_index: int) -> None:
     )
     print(f"분류: {format_category(card.category.value)}")
     print(f"태그: {format_tags(card.tags)}")
-    print(f"능력치: {format_instance_stats(card, card_instance)}")
+    print(f"능력치: {format_instance_stats(game, card, card_instance)}")
+    note = equipment_note(game, instance_id)
+    if note:
+        print(note.removeprefix(" | "))
     print(card.description)
     print()
 
@@ -267,29 +305,30 @@ def game_loop(
             if resolution.card is not None and resolution.card_instance is not None
             else "카드 없음"
         )
-        print(f"사용한 카드: {played_name}")
+        print(f"투입한 카드: {played_name}")
         print(resolution.message)
         print(f"결과: {'성공' if resolution.success else '실패'} | 점수 {resolution.score}")
         print(f"안정도 변화: {resolution.stability_delta:+d}")
         if resolution.card is not None and resolution.card_instance is not None:
             print(
                 "카드 상태: "
-                f"{format_instance_stats(resolution.card, resolution.card_instance)}"
+                f"{format_instance_stats(game, resolution.card, resolution.card_instance)}"
             )
             if not resolution.card_instance.is_usable():
-                print("이 카드는 닳아서 덱으로 돌아오지 않습니다.")
+                print("이 카드는 더 이상 현장에 투입할 수 없습니다.")
         if resolution.reward_card is not None and resolution.reward_instance is not None:
             print(
                 f"새 카드 획득: {resolution.reward_card.name} "
                 f"[{resolution.reward_instance.instance_id}] "
-                f"{format_instance_stats(resolution.reward_card, resolution.reward_instance)}"
+                f"{format_instance_stats(game, resolution.reward_card, resolution.reward_instance)}"
+                f"{equipment_note(game, resolution.reward_instance.instance_id)}"
             )
         print()
 
     if game.is_won():
-        print("도시가 버텨냈습니다. 프로토타입 이야기를 끝까지 진행했습니다.")
+        print("모든 의뢰를 처리했습니다. 해결사 사무소의 이름이 도시 전역에 퍼집니다.")
     else:
-        print("안정도가 0이 되어 도시가 손을 벗어났습니다.")
+        print("도시의 안정이 무너졌습니다. 이번 의뢰선은 여기까지입니다.")
     print(f"해결한 사건: {game.completed_events}")
     print(f"모은 고유 카드: {game.unique_cards_owned()}")
     print(f"총 카드 인스턴스: {game.total_cards_owned()}")

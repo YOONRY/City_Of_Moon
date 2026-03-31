@@ -7,7 +7,7 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DEFAULT_DATABASE_FILENAME = "city_of_moon.sqlite3"
-CURRENT_SCHEMA_VERSION = 3
+CURRENT_SCHEMA_VERSION = 4
 
 
 def get_default_database_path() -> Path:
@@ -41,6 +41,19 @@ def _migrate_existing_data(connection: sqlite3.Connection) -> None:
     if not _table_exists(connection, "starter_card_instances"):
         return
 
+    if "equipped_to_instance_id" not in _table_columns(connection, "starter_card_instances"):
+        connection.execute(
+            "ALTER TABLE starter_card_instances ADD COLUMN equipped_to_instance_id TEXT NOT NULL DEFAULT ''"
+        )
+
+    if _table_exists(connection, "save_card_instances") and "equipped_to_instance_id" not in _table_columns(
+        connection,
+        "save_card_instances",
+    ):
+        connection.execute(
+            "ALTER TABLE save_card_instances ADD COLUMN equipped_to_instance_id TEXT NOT NULL DEFAULT ''"
+        )
+
     starter_instance_count = connection.execute(
         "SELECT COUNT(*) FROM starter_card_instances"
     ).fetchone()[0]
@@ -65,9 +78,10 @@ def _migrate_existing_data(connection: sqlite3.Connection) -> None:
                     card_id,
                     power_bonus,
                     current_durability,
-                    nickname
+                    nickname,
+                    equipped_to_instance_id
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     f"starter_{row['card_id']}_{copy_index}",
@@ -75,6 +89,7 @@ def _migrate_existing_data(connection: sqlite3.Connection) -> None:
                     row["card_id"],
                     0,
                     max_durability,
+                    "",
                     "",
                 ),
             )

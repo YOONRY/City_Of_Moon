@@ -1,4 +1,4 @@
-"""Starter package for the City of Moon card game prototype."""
+"""달의 도시 해결사 카드 프로토타입 패키지."""
 
 from .database import get_default_database_path, initialize_database
 from .game import GameState, create_default_game

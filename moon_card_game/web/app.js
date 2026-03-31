@@ -10,32 +10,27 @@ const EVENT_POSITIONS = [
 ];
 
 const CATEGORY_VISUALS = {
-  combat: { accent: "#8b2d22", glyph: "검" },
-  diplomacy: { accent: "#886128", glyph: "인장" },
-  investigation: { accent: "#304c66", glyph: "눈" },
-  mystic: { accent: "#5f3b6b", glyph: "룬" },
-  stealth: { accent: "#24504b", glyph: "가면" },
-  support: { accent: "#4f6a36", glyph: "등불" },
-  survival: { accent: "#6d4f2c", glyph: "식량" },
-  technology: { accent: "#3d5f78", glyph: "기어" },
+  person: { accent: "#3d78a5", glyph: "인" },
+  info: { accent: "#b3944e", glyph: "정" },
+  equipment: { accent: "#4b6f88", glyph: "장" },
 };
 
 const TAG_LABELS = {
-  investigation: "조사",
-  urban: "도시",
-  diplomacy: "외교",
-  noble: "귀족",
-  mystic: "신비",
-  ritual: "의식",
-  stealth: "잠행",
-  criminal: "범죄",
-  technology: "기술",
+  route: "경로",
+  street: "거리",
+  negotiation: "교섭",
+  public: "공공",
+  shrine: "사당",
+  support: "지원",
+  covert: "잠입",
   repair: "수리",
+  fixer: "해결",
   survival: "생존",
-  trade: "거래",
+  escort: "호위",
   combat: "전투",
-  honor: "명예",
-  care: "치유",
+  medical: "치료",
+  evidence: "증거",
+  permit: "허가",
 };
 
 const state = {
@@ -84,19 +79,54 @@ async function fetchJson(path, options = {}) {
 }
 
 function visualForCategory(category) {
-  return CATEGORY_VISUALS[category] ?? { accent: "#7f231f", glyph: "달" };
+  return CATEGORY_VISUALS[category] ?? { accent: "#1f4f7d", glyph: "달" };
 }
 
 function displayTag(tag) {
   return TAG_LABELS[tag] ?? tag;
 }
 
-function categoryCounts(collection) {
-  const counts = new Map();
-  for (const card of collection) {
-    counts.set(card.displayCategory, (counts.get(card.displayCategory) ?? 0) + 1);
+function eventNeedsSpecificInfo(event) {
+  return Boolean(event?.requiredCardIds?.length);
+}
+
+function cardMatchesEvent(card, event) {
+  if (!event || card.category === "equipment") {
+    return false;
   }
-  return [...counts.entries()].sort((left, right) => left[0].localeCompare(right[0]));
+  const hasRequiredTag =
+    event.requiredTags.length === 0 ||
+    card.tags.some((tag) => event.requiredTags.includes(tag));
+  const hasRequiredCard =
+    !eventNeedsSpecificInfo(event) || event.requiredCardIds.includes(card.cardId);
+  return hasRequiredTag && hasRequiredCard;
+}
+
+function cardPowerText(card) {
+  if (card.category === "equipment") {
+    return `보정 +${card.power}`;
+  }
+  if (card.equipmentBonus > 0) {
+    return `대응 ${card.power} (+장비 ${card.equipmentBonus})`;
+  }
+  return `대응 ${card.power}`;
+}
+
+function cardDurabilityText(card) {
+  if (card.category === "equipment") {
+    return card.equippedToName ? `장착 ${card.equippedToName}` : "장비 보관";
+  }
+  return `내구 ${card.durability}/${card.maxDurability}`;
+}
+
+function cardAttachmentSummary(card) {
+  if (card.category === "equipment") {
+    return card.equippedToName ? `장착 대상: ${card.equippedToName}` : "장착 대상 없음";
+  }
+  if (card.attachedEquipmentNames.length > 0) {
+    return `장착 장비: ${card.attachedEquipmentNames.join(", ")}`;
+  }
+  return "";
 }
 
 function activeEvent() {
@@ -144,13 +174,6 @@ function handIndexForCard(instanceId) {
     return -1;
   }
   return state.payload.hand.findIndex((card) => card.instanceId === instanceId);
-}
-
-function cardMatchesEvent(card, event) {
-  if (!event) {
-    return false;
-  }
-  return card.tags.some((tag) => event.requiredTags.includes(tag));
 }
 
 function stagedCard() {
@@ -232,6 +255,7 @@ function canQuickPlay(card) {
   const filterEvent = selectedEvent();
   return (
     !state.payload.isOver &&
+    card.category !== "equipment" &&
     card.isUsable &&
     card.isInHand &&
     handIndexForCard(card.instanceId) >= 0 &&
@@ -242,6 +266,12 @@ function canQuickPlay(card) {
 function cardStateBadge(card, filterEvent) {
   if (!card.isUsable) {
     return { label: "소모됨", className: "state-worn" };
+  }
+  if (card.category === "equipment") {
+    return {
+      label: card.equippedToName ? "장착됨" : "장비",
+      className: "state-preview",
+    };
   }
   if (filterEvent && !filterEvent.isCurrent) {
     return { label: "미리보기", className: "state-preview" };
@@ -376,9 +406,14 @@ function dropZoneContent(card, filterEvent) {
       </div>
       <p class="drop-card-copy">${escapeHtml(card.description)}</p>
       <div class="stat-row">
-        <span class="stat-chip">위력 ${escapeHtml(card.power)}</span>
-        <span class="stat-chip">내구 ${escapeHtml(card.durability)}/${escapeHtml(card.maxDurability)}</span>
+        <span class="stat-chip">${escapeHtml(cardPowerText(card))}</span>
+        <span class="stat-chip">${escapeHtml(cardDurabilityText(card))}</span>
       </div>
+      ${
+        cardAttachmentSummary(card)
+          ? `<p class="drop-card-copy">${escapeHtml(cardAttachmentSummary(card))}</p>`
+          : ""
+      }
       <div class="tag-grid">
         ${card.tags.map((tag) => `<span class="card-tag">${escapeHtml(displayTag(tag))}</span>`).join("")}
       </div>
@@ -416,7 +451,7 @@ function renderDetailPanel() {
         </div>
         <p class="detail-copy">${escapeHtml(event.description)}</p>
         <div class="detail-meta">
-          <span class="detail-stat">대응 카드 ${matchingCards.length}</span>
+          <span class="detail-stat">투입 가능 카드 ${matchingCards.length}</span>
           <span class="detail-stat">보상 ${escapeHtml(event.rewardNames.join(", ") || "미확인")}</span>
         </div>
         <div>
@@ -425,6 +460,18 @@ function renderDetailPanel() {
             ${event.requiredTags.map((tag) => `<span class="tag-pill">${escapeHtml(displayTag(tag))}</span>`).join("")}
           </div>
         </div>
+        ${
+          event.requiredCardNames.length > 0
+            ? `
+              <div>
+                <p class="eyebrow">전용 정보</p>
+                <div class="tag-group">
+                  ${event.requiredCardNames.map((name) => `<span class="tag-pill">${escapeHtml(name)}</span>`).join("")}
+                </div>
+              </div>
+            `
+            : ""
+        }
       </div>
     `;
     return;
@@ -438,7 +485,7 @@ function renderDetailPanel() {
       </div>
       <p class="detail-copy">${escapeHtml(filterEvent.description)}</p>
       <div class="detail-meta">
-        <span class="detail-stat">대응 카드 ${matchingCards.length}</span>
+        <span class="detail-stat">투입 가능 카드 ${matchingCards.length}</span>
         <span class="detail-stat">${filterEvent.isCurrent ? "진행 중" : "미리보기"}</span>
       </div>
       <div>
@@ -459,6 +506,20 @@ function renderDetailPanel() {
           }
         </div>
       </div>
+      ${
+        filterEvent.requiredCardNames.length > 0
+          ? `
+            <div>
+              <p class="eyebrow">전용 정보</p>
+              <div class="tag-group">
+                ${filterEvent.requiredCardNames
+                  .map((name) => `<span class="tag-pill">${escapeHtml(name)}</span>`)
+                  .join("")}
+              </div>
+            </div>
+          `
+          : ""
+      }
       <div class="drop-lab">
         <div class="drop-zone${staged ? " has-card" : ""}" data-drop-zone>
           ${dropZoneContent(staged, filterEvent)}
@@ -612,8 +673,12 @@ function renderCards() {
         <span class="card-art-badge">${escapeHtml(badge.label)}</span>
       </div>
       <div class="card-mini-row">
-        <span class="card-mini-meta">위 ${escapeHtml(card.power)} / 내 ${escapeHtml(card.durability)}</span>
-        <span class="card-mini-meta">${card.isInHand ? "손패" : "보관"}</span>
+        <span class="card-mini-meta">${escapeHtml(cardPowerText(card))}</span>
+        <span class="card-mini-meta">${
+          card.category === "equipment"
+            ? escapeHtml(card.equippedToName ? `장착: ${card.equippedToName}` : "장비")
+            : escapeHtml(card.isInHand ? "손패" : "보관")
+        }</span>
       </div>
     `;
 
@@ -690,10 +755,15 @@ function renderCardInspector() {
         </div>
         <div class="detail-meta">
           <span class="detail-stat">${escapeHtml(badge.label)}</span>
-          <span class="detail-stat">위력 ${escapeHtml(card.power)}</span>
-          <span class="detail-stat">내구 ${escapeHtml(card.durability)}/${escapeHtml(card.maxDurability)}</span>
+          <span class="detail-stat">${escapeHtml(cardPowerText(card))}</span>
+          <span class="detail-stat">${escapeHtml(cardDurabilityText(card))}</span>
         </div>
         <p class="detail-copy">${escapeHtml(card.description)}</p>
+        ${
+          cardAttachmentSummary(card)
+            ? `<p class="detail-copy">${escapeHtml(cardAttachmentSummary(card))}</p>`
+            : ""
+        }
         <div class="tag-group">
           ${card.tags.map((tag) => `<span class="tag-pill">${escapeHtml(displayTag(tag))}</span>`).join("")}
         </div>

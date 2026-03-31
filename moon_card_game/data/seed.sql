@@ -1,84 +1,84 @@
-INSERT OR IGNORE INTO cards (id, name, category, description, power, max_durability, rarity) VALUES
-    ('street_map', '거리 지도', 'investigation', '숨은 길과 우회로에 대한 메모가 빽빽이 적힌 손그림 지도.', 1, 3, 'common'),
-    ('silver_tongue', '유려한 화술', 'diplomacy', '방 안의 긴장을 가라앉히고 귀족의 마음까지 흔드는 노련한 말솜씨.', 2, 3, 'common'),
-    ('moon_prayer', '달의 기도', 'mystic', '두려움을 가라앉히고 길잡이를 불러들이는 낮은 속삭임의 기도.', 2, 3, 'common'),
-    ('back_alley_pass', '뒷골목 통행증', 'stealth', '수상한 구역의 닫힌 문도 열게 만드는 호의의 증표.', 1, 3, 'common'),
-    ('clockwork_drone', '태엽 드론', 'technology', '정찰과 수리를 위해 만들어진 작은 기계 동료.', 2, 3, 'common'),
-    ('field_rations', '야전 식량', 'survival', '성벽 바깥의 긴 밤을 버티게 해 주는 든든한 보급품.', 1, 3, 'common'),
-    ('heirloom_blade', '가문의 검', 'combat', '자부심보다 의무를 위해 차는 오래된 집안의 무기.', 2, 4, 'uncommon'),
-    ('healer_kit', '치유 도구', 'support', '붕대와 약초, 그리고 위기 속에서도 흔들리지 않는 손.', 2, 4, 'uncommon'),
-    ('oracle_lens', '신탁의 렌즈', 'investigation', '달빛이 숨기려 드는 진실까지 비춰내는 매끈한 렌즈.', 2, 4, 'uncommon'),
-    ('merchant_seal', '상인 인장', 'diplomacy', '협상을 확실한 우위로 바꿔 주는 압인된 계약 인장.', 2, 4, 'uncommon'),
-    ('rail_spike', '철로 스파이크', 'technology', '기관에도 비상 상황에도 쓸 수 있는 튼튼한 쇠말뚝.', 2, 4, 'uncommon'),
-    ('mask_of_mist', '안개의 가면', 'stealth', '군중 속으로 몸을 감추게 해 주는 의식용 가면.', 3, 5, 'rare');
+INSERT OR REPLACE INTO cards (id, name, category, description, power, max_durability, rarity) VALUES
+    ('street_map', '하층 지도 조각', 'info', '하층 구역의 골목과 비밀 통로가 겹겹이 표시된 오래된 지도 조각.', 1, 2, 'common'),
+    ('silver_tongue', '교섭가 유나', 'person', '도시의 이해관계를 읽고 갈등을 말로 풀어내는 해결사.', 2, 3, 'common'),
+    ('moon_prayer', '사당 해석사 미라', 'person', '사당 기록과 의식을 읽어 사건의 배경을 정리하는 조력자.', 2, 3, 'common'),
+    ('back_alley_pass', '뒷골목 연락원 타오', 'person', '뒷골목 인맥과 잠입 실력으로 해결사의 발이 되어 주는 현장 인력.', 2, 3, 'common'),
+    ('clockwork_drone', '태엽 정비사 렌', 'person', '장치와 철로를 다루는 수리 담당 해결사.', 2, 3, 'common'),
+    ('field_rations', '야전 보급 가방', 'equipment', '장기 의뢰를 버티게 해 주는 응급 보급과 간이 공구 묶음.', 1, 3, 'common'),
+    ('heirloom_blade', '가문의 검', 'equipment', '위험한 의뢰에 투입되는 해결사에게 쥐여 주는 오래된 호신검.', 2, 4, 'uncommon'),
+    ('healer_kit', '현장 처치 키트', 'equipment', '부상자 응급 처치와 동행자 보호에 특화된 현장용 장비.', 1, 4, 'uncommon'),
+    ('oracle_lens', '월광 기록 렌즈', 'info', '감춰진 흔적과 의식의 잔향을 읽어내는 조사용 렌즈 기록물.', 1, 2, 'uncommon'),
+    ('merchant_seal', '상단 출입 인가서', 'info', '상류 구역과 상단 행사장에 드나들기 위한 정식 허가 문서.', 1, 2, 'uncommon'),
+    ('rail_spike', '철로 고정구', 'equipment', '불안정한 철로와 문을 임시로 고정할 수 있는 개조 장비.', 1, 4, 'uncommon'),
+    ('mask_of_mist', '안개의 가면', 'equipment', '얼굴과 기척을 흐려 잠입 임무의 성공률을 높이는 보조 장비.', 2, 5, 'rare');
 
-INSERT OR IGNORE INTO card_tags (card_id, sort_order, tag) VALUES
-    ('street_map', 1, 'investigation'),
-    ('street_map', 2, 'urban'),
-    ('silver_tongue', 1, 'diplomacy'),
-    ('silver_tongue', 2, 'noble'),
-    ('moon_prayer', 1, 'mystic'),
-    ('moon_prayer', 2, 'ritual'),
-    ('back_alley_pass', 1, 'stealth'),
-    ('back_alley_pass', 2, 'criminal'),
-    ('clockwork_drone', 1, 'technology'),
-    ('clockwork_drone', 2, 'repair'),
-    ('field_rations', 1, 'survival'),
-    ('field_rations', 2, 'trade'),
-    ('heirloom_blade', 1, 'combat'),
-    ('heirloom_blade', 2, 'honor'),
-    ('healer_kit', 1, 'care'),
-    ('healer_kit', 2, 'survival'),
-    ('oracle_lens', 1, 'investigation'),
-    ('oracle_lens', 2, 'mystic'),
-    ('merchant_seal', 1, 'trade'),
-    ('merchant_seal', 2, 'diplomacy'),
+INSERT OR REPLACE INTO card_tags (card_id, sort_order, tag) VALUES
+    ('street_map', 1, 'route'),
+    ('street_map', 2, 'street'),
+    ('silver_tongue', 1, 'negotiation'),
+    ('silver_tongue', 2, 'public'),
+    ('moon_prayer', 1, 'shrine'),
+    ('moon_prayer', 2, 'support'),
+    ('back_alley_pass', 1, 'covert'),
+    ('back_alley_pass', 2, 'street'),
+    ('clockwork_drone', 1, 'repair'),
+    ('clockwork_drone', 2, 'fixer'),
+    ('field_rations', 1, 'support'),
+    ('field_rations', 2, 'survival'),
+    ('heirloom_blade', 1, 'escort'),
+    ('heirloom_blade', 2, 'combat'),
+    ('healer_kit', 1, 'support'),
+    ('healer_kit', 2, 'medical'),
+    ('oracle_lens', 1, 'evidence'),
+    ('oracle_lens', 2, 'shrine'),
+    ('merchant_seal', 1, 'permit'),
+    ('merchant_seal', 2, 'negotiation'),
     ('rail_spike', 1, 'repair'),
-    ('rail_spike', 2, 'combat'),
-    ('mask_of_mist', 1, 'stealth'),
-    ('mask_of_mist', 2, 'mystic');
+    ('rail_spike', 2, 'public'),
+    ('mask_of_mist', 1, 'covert'),
+    ('mask_of_mist', 2, 'escort');
 
-INSERT OR IGNORE INTO events (id, sort_order, title, description, success_delta, failure_delta, success_text, failure_text) VALUES
-    ('market_riot', 1, '시장 폭동', '달 시장의 거래 분쟁이 곧 폭력 사태로 번질 기세다.', 1, -1, '군중이 진정되고 시장 지도자들이 당신에게 빚을 진다.', '폭동이 번지고 도시가 당신을 신뢰하던 마음도 흔들린다.'),
-    ('broken_rail', 2, '달 철로 파손', '상층 구역으로 향하는 철로가 끊겨 노동자들이 냉기 속에 발이 묶였다.', 1, -1, '구역이 얼어붙기 전에 철로를 복구해 냈다.', '수리가 지연되고 상층 구역은 그 책임을 당신에게 돌린다.'),
-    ('masked_ball', 3, '가면무도회', '향수와 음악 뒤편에서 귀족들의 음모가 모습을 감춘다.', 1, -1, '비밀과 함께 새로운 초대장을 손에 넣고 무도회를 빠져나온다.', '너무 일찍 들켜 버렸고 궁정은 단단히 입을 닫는다.'),
-    ('eclipse_shrine', 4, '월식 사당', '성스러운 의식 도중 사당의 달 거울에 금이 간다.', 1, -1, '의식이 회복되고 사당은 오래된 유물을 드러낸다.', '의식이 무너지고 구역 전체에 공황이 번져 간다.'),
-    ('smuggler_tunnel', 5, '밀수꾼 터널', '항구 밑 숨겨진 터널에서 안개를 틈타 무기가 이동 중이다.', 1, -1, '밀수 경로를 드러내고 그들의 은닉 물자를 압수한다.', '밀수꾼들이 달아나고 항구는 더 위험한 곳이 된다.'),
-    ('icewind_crossing', 6, '한풍 관문', '얼어붙는 폭풍이 닥치며 성문 밖의 순례자들이 고립되었다.', 1, -1, '순례자들을 무사히 데려와 도시의 감사를 얻는다.', '구조가 흔들리고 성문 구역의 분위기는 무겁게 가라앉는다.');
+INSERT OR REPLACE INTO events (id, sort_order, title, description, success_delta, failure_delta, success_text, failure_text) VALUES
+    ('market_riot', 1, '시장 중재 의뢰', '남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.', 1, -1, '말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.', '중재가 늦어지며 시장 불안이 도시 전체로 번졌다.'),
+    ('broken_rail', 2, '철로 긴급 수리', '외곽과 도심을 잇는 달 철로가 파손되어 물류와 인원이 발이 묶였다.', 1, -1, '철로를 임시 복구해 도시의 흐름을 다시 돌려놓았다.', '철로 복구가 지연되며 시민들의 불만이 커졌다.'),
+    ('masked_ball', 3, '가면무도회 잠입', '상류층 무도회에서 사라진 장부를 찾아 달라는 비밀 의뢰가 도착했다.', 1, -1, '행사장 안쪽 기록실에 잠입해 필요한 장부를 확보했다.', '초대 절차에서 막혀 단서 없이 물러날 수밖에 없었다.'),
+    ('eclipse_shrine', 4, '월식 사당 이상 징후', '월식 직후 사당 기록 장치가 멈추고 담당자들이 불길한 소음을 들었다고 한다.', 1, -1, '사당 기록을 정리하고 현장을 안정시켜 추가 피해를 막았다.', '이상 징후를 해석하지 못해 사당 일대에 불안이 남았다.'),
+    ('smuggler_tunnel', 5, '밀수 터널 추적', '뒷골목 조직이 지하 통로로 금지 물자를 옮긴다는 제보가 들어왔다.', 1, -1, '숨은 경로를 짚어내 밀수선을 끊고 조직의 움직임을 묶어 냈다.', '통로를 놓치며 조직이 한발 앞서 달아났다.'),
+    ('icewind_crossing', 6, '빙풍 속 호송 의뢰', '눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.', 1, -1, '혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.', '준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다.');
 
-INSERT OR IGNORE INTO event_required_tags (event_id, sort_order, tag) VALUES
-    ('market_riot', 1, 'diplomacy'),
-    ('market_riot', 2, 'combat'),
-    ('market_riot', 3, 'care'),
-    ('broken_rail', 1, 'technology'),
-    ('broken_rail', 2, 'repair'),
-    ('broken_rail', 3, 'survival'),
-    ('masked_ball', 1, 'stealth'),
-    ('masked_ball', 2, 'diplomacy'),
-    ('masked_ball', 3, 'investigation'),
-    ('eclipse_shrine', 1, 'mystic'),
-    ('eclipse_shrine', 2, 'ritual'),
-    ('eclipse_shrine', 3, 'care'),
-    ('smuggler_tunnel', 1, 'investigation'),
-    ('smuggler_tunnel', 2, 'stealth'),
-    ('smuggler_tunnel', 3, 'combat'),
-    ('icewind_crossing', 1, 'survival'),
-    ('icewind_crossing', 2, 'care'),
-    ('icewind_crossing', 3, 'combat');
+INSERT OR REPLACE INTO event_required_tags (event_id, sort_order, tag) VALUES
+    ('market_riot', 1, 'negotiation'),
+    ('market_riot', 2, 'public'),
+    ('market_riot', 3, 'street'),
+    ('broken_rail', 1, 'repair'),
+    ('broken_rail', 2, 'route'),
+    ('broken_rail', 3, 'public'),
+    ('masked_ball', 1, 'covert'),
+    ('masked_ball', 2, 'negotiation'),
+    ('masked_ball', 3, 'permit'),
+    ('eclipse_shrine', 1, 'shrine'),
+    ('eclipse_shrine', 2, 'support'),
+    ('eclipse_shrine', 3, 'repair'),
+    ('smuggler_tunnel', 1, 'street'),
+    ('smuggler_tunnel', 2, 'covert'),
+    ('smuggler_tunnel', 3, 'route'),
+    ('icewind_crossing', 1, 'support'),
+    ('icewind_crossing', 2, 'public'),
+    ('icewind_crossing', 3, 'fixer');
 
-INSERT OR IGNORE INTO event_bonus_tags (event_id, sort_order, tag) VALUES
-    ('market_riot', 1, 'trade'),
-    ('market_riot', 2, 'honor'),
-    ('broken_rail', 1, 'investigation'),
-    ('masked_ball', 1, 'noble'),
-    ('masked_ball', 2, 'mystic'),
-    ('eclipse_shrine', 1, 'repair'),
-    ('smuggler_tunnel', 1, 'criminal'),
-    ('smuggler_tunnel', 2, 'technology'),
-    ('icewind_crossing', 1, 'trade'),
-    ('icewind_crossing', 2, 'honor');
+INSERT OR REPLACE INTO event_required_cards (event_id, sort_order, card_id) VALUES
+    ('masked_ball', 1, 'merchant_seal'),
+    ('smuggler_tunnel', 1, 'street_map');
 
-INSERT OR IGNORE INTO event_rewards (event_id, sort_order, card_id) VALUES
+INSERT OR REPLACE INTO event_bonus_tags (event_id, sort_order, tag) VALUES
+    ('market_riot', 1, 'permit'),
+    ('broken_rail', 1, 'fixer'),
+    ('masked_ball', 1, 'street'),
+    ('eclipse_shrine', 1, 'evidence'),
+    ('smuggler_tunnel', 1, 'evidence'),
+    ('icewind_crossing', 1, 'route');
+
+INSERT OR REPLACE INTO event_rewards (event_id, sort_order, card_id) VALUES
     ('market_riot', 1, 'merchant_seal'),
     ('broken_rail', 1, 'rail_spike'),
     ('masked_ball', 1, 'mask_of_mist'),
@@ -86,10 +86,18 @@ INSERT OR IGNORE INTO event_rewards (event_id, sort_order, card_id) VALUES
     ('smuggler_tunnel', 1, 'heirloom_blade'),
     ('icewind_crossing', 1, 'healer_kit');
 
-INSERT OR IGNORE INTO starter_card_instances (instance_id, sort_order, card_id, power_bonus, current_durability, nickname) VALUES
-    ('starter_street_map_1', 1, 'street_map', 0, 3, ''),
-    ('starter_silver_tongue_1', 2, 'silver_tongue', 1, 3, ''),
-    ('starter_moon_prayer_1', 3, 'moon_prayer', 0, 3, ''),
-    ('starter_back_alley_pass_1', 4, 'back_alley_pass', 0, 3, ''),
-    ('starter_clockwork_drone_1', 5, 'clockwork_drone', 0, 2, ''),
-    ('starter_field_rations_1', 6, 'field_rations', 0, 3, '');
+INSERT OR REPLACE INTO starter_card_instances (
+    instance_id,
+    sort_order,
+    card_id,
+    power_bonus,
+    current_durability,
+    nickname,
+    equipped_to_instance_id
+) VALUES
+    ('starter_silver_tongue_1', 1, 'silver_tongue', 0, 3, '', ''),
+    ('starter_moon_prayer_1', 2, 'moon_prayer', 0, 3, '', ''),
+    ('starter_back_alley_pass_1', 3, 'back_alley_pass', 1, 3, '', ''),
+    ('starter_clockwork_drone_1', 4, 'clockwork_drone', 0, 3, '', ''),
+    ('starter_street_map_1', 5, 'street_map', 0, 2, '', ''),
+    ('starter_field_rations_1', 6, 'field_rations', 0, 3, '', 'starter_clockwork_drone_1');

@@ -6,24 +6,33 @@ from pathlib import Path
 from typing import Any
 
 from .game import GameState, create_default_game
+from .models import CardCategory
 from .save_system import DEFAULT_SAVE_SLOT, has_saved_game, load_game_state, save_game_state
 
 WEB_ROOT = Path(__file__).resolve().parent / "web"
 CATEGORY_LABELS = {
-    "investigation": "조사",
-    "diplomacy": "외교",
-    "mystic": "신비",
-    "stealth": "잠행",
-    "technology": "기술",
-    "survival": "생존",
-    "combat": "전투",
-    "support": "지원",
+    "person": "인물",
+    "info": "정보",
+    "equipment": "장비",
 }
 
 
 def _serialize_card(game: GameState, instance_id: str) -> dict[str, Any]:
     card_instance = game.card_instance(instance_id)
     card = game.card_definition(instance_id)
+    equipped_to_name = ""
+    if card.category == CardCategory.EQUIPMENT and card_instance.equipped_to_instance_id:
+        target_instance = game.card_instance(card_instance.equipped_to_instance_id)
+        target_card = game.card_definition(card_instance.equipped_to_instance_id)
+        equipped_to_name = target_instance.display_name(target_card)
+
+    attached_equipment_names = []
+    if card.category == CardCategory.PERSON:
+        attached_equipment_names = [
+            equipment_instance.display_name(game.catalog[equipment_instance.card_id])
+            for equipment_instance in game.equipment_for(instance_id)
+        ]
+
     return {
         "instanceId": card_instance.instance_id,
         "cardId": card.id,
@@ -34,21 +43,31 @@ def _serialize_card(game: GameState, instance_id: str) -> dict[str, Any]:
         "description": card.description,
         "basePower": card.power,
         "powerBonus": card_instance.power_bonus,
-        "power": card_instance.effective_power(card),
+        "equipmentBonus": game.equipment_bonus_for(instance_id)
+        if card.category == CardCategory.PERSON
+        else 0,
+        "power": game.effective_power(instance_id),
         "durability": card_instance.current_durability,
         "maxDurability": card.max_durability,
         "isUsable": card_instance.is_usable(),
+        "isActiveCard": card.category != CardCategory.EQUIPMENT,
         "displayCategory": CATEGORY_LABELS.get(card.category.value, card.category.value),
+        "equippedToInstanceId": card_instance.equipped_to_instance_id,
+        "equippedToName": equipped_to_name,
+        "attachedEquipmentNames": attached_equipment_names,
     }
 
 
 def _serialize_event(game: GameState, index: int, event) -> dict[str, Any]:
     reward_names = [game.catalog[card_id].name for card_id in event.reward_card_ids]
+    required_card_names = [game.catalog[card_id].name for card_id in event.required_card_ids]
     return {
         "id": event.id,
         "title": event.title,
         "description": event.description,
         "requiredTags": list(event.required_tags),
+        "requiredCardIds": list(event.required_card_ids),
+        "requiredCardNames": required_card_names,
         "bonusTags": list(event.bonus_tags),
         "rewardNames": reward_names,
         "isCurrent": index == 0,
@@ -102,7 +121,7 @@ class GameSession:
         elif load_save:
             self.message = f"'{self.save_slot}' 슬롯 저장이 없어 새 게임을 시작했습니다."
         else:
-            self.message = "월광 지도가 펼쳐졌습니다. 카드를 골라 사건에 대비하세요."
+            self.message = "해결사 사무소로 새 의뢰가 도착했습니다. 적절한 카드로 사건을 처리하세요."
 
     def _make_game(self, load_save: bool) -> GameState:
         if load_save:
@@ -130,9 +149,9 @@ class GameSession:
             else "카드 없음"
         )
         result_text = "성공" if resolution.success else "실패"
-        self.message = f"{played_name} 사용: {result_text}. {resolution.message}"
+        self.message = f"{played_name} 투입: {result_text}. {resolution.message}"
         if resolution.reward_card is not None:
-            self.message += f" 새 카드 획득: {resolution.reward_card.name}."
+            self.message += f" 새 카드 확보: {resolution.reward_card.name}."
         return self.state_payload()
 
     def skip_event(self) -> dict[str, Any]:
@@ -140,7 +159,7 @@ class GameSession:
             self.message = "넘길 수 있는 사건이 없습니다."
             return self.state_payload()
         resolution = self.game.skip_event()
-        self.message = f"이번 기회를 흘려보냈습니다. {resolution.message}"
+        self.message = f"이번 의뢰를 흘려보냈습니다. {resolution.message}"
         return self.state_payload()
 
     def save(self) -> dict[str, Any]:
@@ -159,7 +178,7 @@ class GameSession:
 
     def new_game(self) -> dict[str, Any]:
         self.game = create_default_game(db_path=self.db_path)
-        self.message = "달의 도시 아래에서 새로운 여정을 시작했습니다."
+        self.message = "새로운 의뢰 목록이 열렸습니다. 해결사를 다시 배치해 보세요."
         return self.state_payload()
 
     def forfeit(self) -> dict[str, Any]:
@@ -167,7 +186,7 @@ class GameSession:
             self.message = "이 진행은 이미 종료되었습니다."
             return self.state_payload()
         self.game.stability = 0
-        self.message = "이번 여정을 포기했습니다. 도시는 당신의 손을 벗어났습니다."
+        self.message = "이번 의뢰선을 포기했습니다. 도시의 신뢰가 크게 흔들렸습니다."
         return self.state_payload()
 
 

@@ -71,9 +71,10 @@ def save_game_state(
                     card_id,
                     power_bonus,
                     current_durability,
-                    nickname
+                    nickname,
+                    equipped_to_instance_id
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
                     (
@@ -83,6 +84,7 @@ def save_game_state(
                         card_instance.power_bonus,
                         card_instance.current_durability,
                         card_instance.nickname,
+                        card_instance.equipped_to_instance_id,
                     )
                     for card_instance in sorted(
                         game.collection.values(),
@@ -154,7 +156,8 @@ def load_game_state(
                 card_id,
                 power_bonus,
                 current_durability,
-                nickname
+                nickname,
+                equipped_to_instance_id
             FROM save_card_instances
             WHERE slot_name = ?
             ORDER BY instance_id
@@ -196,6 +199,7 @@ def load_game_state(
             power_bonus=row["power_bonus"],
             current_durability=row["current_durability"],
             nickname=row["nickname"],
+            equipped_to_instance_id=row["equipped_to_instance_id"],
         )
         for row in card_rows
     }

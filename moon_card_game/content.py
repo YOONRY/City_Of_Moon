@@ -33,7 +33,8 @@ def build_starter_collection(db_path: str | Path | None = None) -> dict[str, Car
                 card_id,
                 power_bonus,
                 current_durability,
-                nickname
+                nickname,
+                equipped_to_instance_id
             FROM starter_card_instances
             ORDER BY sort_order
             """
@@ -45,6 +46,7 @@ def build_starter_collection(db_path: str | Path | None = None) -> dict[str, Car
             power_bonus=row["power_bonus"],
             current_durability=row["current_durability"],
             nickname=row["nickname"],
+            equipped_to_instance_id=row["equipped_to_instance_id"],
         )
         for row in rows
     }
@@ -104,6 +106,12 @@ def build_story_events(db_path: str | Path | None = None) -> list[Event]:
             "event_id",
             "card_id",
         )
+        required_card_map = _load_grouped_values(
+            connection,
+            "event_required_cards",
+            "event_id",
+            "card_id",
+        )
         rows = connection.execute(
             """
             SELECT
@@ -124,6 +132,7 @@ def build_story_events(db_path: str | Path | None = None) -> list[Event]:
             title=row["title"],
             description=row["description"],
             required_tags=required_tag_map.get(row["id"], ()),
+            required_card_ids=required_card_map.get(row["id"], ()),
             bonus_tags=bonus_tag_map.get(row["id"], ()),
             reward_card_ids=reward_map.get(row["id"], ()),
             success_delta=row["success_delta"],

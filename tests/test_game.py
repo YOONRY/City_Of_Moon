@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
-import unittest
 from random import Random
 import sqlite3
+from tempfile import TemporaryDirectory
+import unittest
 
 from moon_card_game.content import (
     build_card_catalog,
@@ -47,6 +47,7 @@ class GameLogicTests(unittest.TestCase):
                     card_instance.power_bonus,
                     card_instance.current_durability,
                     card_instance.nickname,
+                    card_instance.equipped_to_instance_id,
                 )
                 for instance_id, card_instance in left.collection.items()
             },
@@ -56,12 +57,13 @@ class GameLogicTests(unittest.TestCase):
                     card_instance.power_bonus,
                     card_instance.current_durability,
                     card_instance.nickname,
+                    card_instance.equipped_to_instance_id,
                 )
                 for instance_id, card_instance in right.collection.items()
             },
         )
 
-    def test_matching_card_succeeds_and_grants_reward(self) -> None:
+    def test_matching_person_card_succeeds_and_grants_reward(self) -> None:
         event = self.events[0]
         card_instance = self.starter_collection["starter_silver_tongue_1"]
         card = self.catalog[card_instance.card_id]
@@ -70,40 +72,44 @@ class GameLogicTests(unittest.TestCase):
 
         self.assertTrue(resolution.success)
         self.assertEqual(resolution.reward_card.id, "merchant_seal")
-        self.assertEqual(card_instance.effective_power(card), 3)
         self.assertGreaterEqual(resolution.stability_delta, 1)
 
-    def test_non_matching_card_fails(self) -> None:
-        event = self.events[1]
+    def test_event_with_required_info_card_fails_without_specific_card(self) -> None:
+        event = next(event for event in self.events if event.id == "masked_ball")
         card_instance = self.starter_collection["starter_back_alley_pass_1"]
         card = self.catalog[card_instance.card_id]
 
         resolution = resolve_event(event, card, card_instance, self.catalog)
 
         self.assertFalse(resolution.success)
-        self.assertEqual(resolution.stability_delta, -1)
+        self.assertIn("전용 정보", resolution.message)
 
-    def test_play_card_updates_collection_and_event_progress(self) -> None:
+    def test_equipment_auto_equips_and_boosts_person_power(self) -> None:
         state = GameState(
             catalog=self.catalog,
-            events=self.events[:1],
+            events=[],
             collection=build_starter_collection(self.db_path),
             rng=Random(0),
-            draw_pile=["starter_silver_tongue_1"],
-            discard_pile=[],
-            hand=[],
         )
 
-        resolution = state.play_card(0)
+        self.assertEqual(
+            state.collection["starter_field_rations_1"].equipped_to_instance_id,
+            "starter_clockwork_drone_1",
+        )
+        self.assertEqual(state.equipment_bonus_for("starter_clockwork_drone_1"), 1)
+        self.assertEqual(state.effective_power("starter_clockwork_drone_1"), 3)
 
-        self.assertTrue(resolution.success)
-        self.assertEqual(state.completed_events, 1)
-        self.assertEqual(state.collection["starter_silver_tongue_1"].current_durability, 2)
-        self.assertIsNotNone(resolution.reward_instance)
-        self.assertIn(resolution.reward_instance.instance_id, state.collection)
-        self.assertTrue(resolution.reward_instance.instance_id.startswith("merchant_seal_instance_"))
+    def test_draw_pile_excludes_equipment_cards(self) -> None:
+        state = create_default_game(seed=0, db_path=self.db_path)
 
-    def test_collection_groups_cards_by_category(self) -> None:
+        categories = {
+            state.card_definition(instance_id).category
+            for instance_id in (state.hand + state.draw_pile + state.discard_pile)
+        }
+
+        self.assertNotIn(CardCategory.EQUIPMENT, categories)
+
+    def test_collection_groups_cards_by_new_categories(self) -> None:
         state = GameState(
             catalog=self.catalog,
             events=[],
@@ -113,10 +119,11 @@ class GameLogicTests(unittest.TestCase):
 
         grouped = state.collection_by_category()
 
-        self.assertIn(CardCategory.DIPLOMACY, grouped)
-        self.assertEqual(grouped[CardCategory.DIPLOMACY][0].card_id, "silver_tongue")
+        self.assertIn(CardCategory.PERSON, grouped)
+        self.assertIn(CardCategory.INFO, grouped)
+        self.assertIn(CardCategory.EQUIPMENT, grouped)
 
-    def test_add_card_to_collection_creates_new_instance(self) -> None:
+    def test_add_equipment_to_collection_attaches_to_person(self) -> None:
         state = GameState(
             catalog=self.catalog,
             events=[],
@@ -124,11 +131,12 @@ class GameLogicTests(unittest.TestCase):
             rng=Random(0),
         )
 
-        new_instance = state.add_card_to_collection("silver_tongue", power_bonus=2)
+        new_instance = state.add_card_to_collection("heirloom_blade")
 
-        self.assertEqual(new_instance.power_bonus, 2)
+        self.assertEqual(self.catalog[new_instance.card_id].category, CardCategory.EQUIPMENT)
+        self.assertTrue(new_instance.equipped_to_instance_id)
         self.assertEqual(state.total_cards_owned(), 7)
-        self.assertEqual(state.unique_cards_owned(), 6)
+        self.assertEqual(state.unique_cards_owned(), 7)
 
     def test_database_initializes_and_create_default_game_reads_instances(self) -> None:
         self.assertTrue(self.db_path.exists())
@@ -138,15 +146,18 @@ class GameLogicTests(unittest.TestCase):
         self.assertEqual(state.unique_cards_owned(), 6)
         self.assertEqual(state.total_cards_owned(), 6)
         self.assertEqual(state.current_event().id, "market_riot")
-        self.assertEqual(state.collection["starter_silver_tongue_1"].power_bonus, 1)
-        self.assertEqual(state.collection["starter_clockwork_drone_1"].current_durability, 2)
+        self.assertEqual(state.collection["starter_back_alley_pass_1"].power_bonus, 1)
+        self.assertEqual(
+            state.collection["starter_field_rations_1"].equipped_to_instance_id,
+            "starter_clockwork_drone_1",
+        )
 
-    def test_initialize_database_applies_korean_content_updates(self) -> None:
+    def test_initialize_database_applies_updated_world_content(self) -> None:
         connection = sqlite3.connect(self.db_path)
         try:
             connection.execute(
-                "UPDATE cards SET name = ? WHERE id = ?",
-                ("Street Map", "street_map"),
+                "UPDATE cards SET name = ?, category = ? WHERE id = ?",
+                ("Street Map", "investigation", "street_map"),
             )
             connection.execute(
                 "UPDATE events SET title = ? WHERE id = ?",
@@ -160,8 +171,9 @@ class GameLogicTests(unittest.TestCase):
         catalog = build_card_catalog(self.db_path)
         events = build_story_events(self.db_path)
 
-        self.assertEqual(catalog["street_map"].name, "거리 지도")
-        self.assertEqual(events[0].title, "시장 폭동")
+        self.assertEqual(catalog["street_map"].name, "하층 지도 조각")
+        self.assertEqual(catalog["street_map"].category, CardCategory.INFO)
+        self.assertEqual(events[0].title, "시장 중재 의뢰")
 
     def test_load_returns_none_when_slot_is_missing(self) -> None:
         self.assertFalse(has_saved_game(self.db_path, slot_name="missing"))
