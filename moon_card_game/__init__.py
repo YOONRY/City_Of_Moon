@@ -1,0 +1,25 @@
+"""Starter package for the City of Moon card game prototype."""
+
+from .database import get_default_database_path, initialize_database
+from .game import GameState, create_default_game
+from .models import CardCategory, CardDefinition, CardInstance
+from .save_system import (
+    DEFAULT_SAVE_SLOT,
+    has_saved_game,
+    load_game_state,
+    save_game_state,
+)
+
+__all__ = [
+    "CardCategory",
+    "CardDefinition",
+    "CardInstance",
+    "DEFAULT_SAVE_SLOT",
+    "GameState",
+    "create_default_game",
+    "get_default_database_path",
+    "has_saved_game",
+    "initialize_database",
+    "load_game_state",
+    "save_game_state",
+]

@@ -1,0 +1,3 @@
+__pycache__/
+*.py[cod]
+moon_card_game/data/*.sqlite3
