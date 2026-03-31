@@ -81,6 +81,12 @@ def _migrate_existing_data(connection: sqlite3.Connection) -> None:
             sort_order += 1
 
 
+def _apply_content_updates(connection: sqlite3.Connection) -> None:
+    updates_path = DATA_DIR / "content_updates_ko.sql"
+    if updates_path.exists():
+        connection.executescript(updates_path.read_text(encoding="utf-8"))
+
+
 def initialize_database(db_path: str | Path | None = None) -> Path:
     database_path = Path(db_path) if db_path is not None else get_default_database_path()
     database_path = database_path.expanduser().resolve()
@@ -96,6 +102,7 @@ def initialize_database(db_path: str | Path | None = None) -> Path:
         if card_count == 0:
             connection.executescript((DATA_DIR / "seed.sql").read_text(encoding="utf-8"))
         _migrate_existing_data(connection)
+        _apply_content_updates(connection)
         connection.execute(f"PRAGMA user_version = {CURRENT_SCHEMA_VERSION}")
         connection.commit()
     finally:

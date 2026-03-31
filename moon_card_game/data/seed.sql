@@ -1,16 +1,16 @@
 INSERT OR IGNORE INTO cards (id, name, category, description, power, max_durability, rarity) VALUES
-    ('street_map', 'Street Map', 'investigation', 'A hand-drawn map packed with notes about hidden routes.', 1, 3, 'common'),
-    ('silver_tongue', 'Silver Tongue', 'diplomacy', 'A practiced speech that can calm a room or sway a court.', 2, 3, 'common'),
-    ('moon_prayer', 'Moon Prayer', 'mystic', 'A whispered rite that steadies fear and invites guidance.', 2, 3, 'common'),
-    ('back_alley_pass', 'Back Alley Pass', 'stealth', 'A favor token that opens doors in less reputable districts.', 1, 3, 'common'),
-    ('clockwork_drone', 'Clockwork Drone', 'technology', 'A tiny machine companion built for scouting and repairs.', 2, 3, 'common'),
-    ('field_rations', 'Field Rations', 'survival', 'Reliable supplies for a hard night beyond the city walls.', 1, 3, 'common'),
-    ('heirloom_blade', 'Heirloom Blade', 'combat', 'A family weapon carried more for duty than pride.', 2, 4, 'uncommon'),
-    ('healer_kit', 'Healer Kit', 'support', 'Bandages, herbs, and a calm hand in a crisis.', 2, 4, 'uncommon'),
-    ('oracle_lens', 'Oracle Lens', 'investigation', 'A polished lens that reveals what moonlight wants hidden.', 2, 4, 'uncommon'),
-    ('merchant_seal', 'Merchant Seal', 'diplomacy', 'A stamped contract that turns negotiation into leverage.', 2, 4, 'uncommon'),
-    ('rail_spike', 'Rail Spike', 'technology', 'A sturdy iron spike that works in engines and emergencies.', 2, 4, 'uncommon'),
-    ('mask_of_mist', 'Mask of Mist', 'stealth', 'A ceremonial mask that lets you vanish into a crowd.', 3, 5, 'rare');
+    ('street_map', '거리 지도', 'investigation', '숨은 길과 우회로에 대한 메모가 빽빽이 적힌 손그림 지도.', 1, 3, 'common'),
+    ('silver_tongue', '유려한 화술', 'diplomacy', '방 안의 긴장을 가라앉히고 귀족의 마음까지 흔드는 노련한 말솜씨.', 2, 3, 'common'),
+    ('moon_prayer', '달의 기도', 'mystic', '두려움을 가라앉히고 길잡이를 불러들이는 낮은 속삭임의 기도.', 2, 3, 'common'),
+    ('back_alley_pass', '뒷골목 통행증', 'stealth', '수상한 구역의 닫힌 문도 열게 만드는 호의의 증표.', 1, 3, 'common'),
+    ('clockwork_drone', '태엽 드론', 'technology', '정찰과 수리를 위해 만들어진 작은 기계 동료.', 2, 3, 'common'),
+    ('field_rations', '야전 식량', 'survival', '성벽 바깥의 긴 밤을 버티게 해 주는 든든한 보급품.', 1, 3, 'common'),
+    ('heirloom_blade', '가문의 검', 'combat', '자부심보다 의무를 위해 차는 오래된 집안의 무기.', 2, 4, 'uncommon'),
+    ('healer_kit', '치유 도구', 'support', '붕대와 약초, 그리고 위기 속에서도 흔들리지 않는 손.', 2, 4, 'uncommon'),
+    ('oracle_lens', '신탁의 렌즈', 'investigation', '달빛이 숨기려 드는 진실까지 비춰내는 매끈한 렌즈.', 2, 4, 'uncommon'),
+    ('merchant_seal', '상인 인장', 'diplomacy', '협상을 확실한 우위로 바꿔 주는 압인된 계약 인장.', 2, 4, 'uncommon'),
+    ('rail_spike', '철로 스파이크', 'technology', '기관에도 비상 상황에도 쓸 수 있는 튼튼한 쇠말뚝.', 2, 4, 'uncommon'),
+    ('mask_of_mist', '안개의 가면', 'stealth', '군중 속으로 몸을 감추게 해 주는 의식용 가면.', 3, 5, 'rare');
 
 INSERT OR IGNORE INTO card_tags (card_id, sort_order, tag) VALUES
     ('street_map', 1, 'investigation'),
@@ -39,12 +39,12 @@ INSERT OR IGNORE INTO card_tags (card_id, sort_order, tag) VALUES
     ('mask_of_mist', 2, 'mystic');
 
 INSERT OR IGNORE INTO events (id, sort_order, title, description, success_delta, failure_delta, success_text, failure_text) VALUES
-    ('market_riot', 1, 'Market Riot', 'A trade dispute in the moon market threatens to spill into violence.', 1, -1, 'The crowd steadies and the market leaders owe you a favor.', 'The riot spreads and the city''s trust in you slips.'),
-    ('broken_rail', 2, 'Broken Lunar Rail', 'A rail line to the upper quarter snaps, stranding workers in the cold.', 1, -1, 'You restore the line before the district freezes over.', 'Repairs stall and the upper quarter blames your delay.'),
-    ('masked_ball', 3, 'Masked Ball', 'A noble gathering hides a conspiracy behind music and perfume.', 1, -1, 'You leave the ball with secrets and a new invitation.', 'You are noticed too soon and the court closes ranks.'),
-    ('eclipse_shrine', 4, 'Eclipse Shrine', 'The shrine''s moon mirror cracks during a sacred rite.', 1, -1, 'The rite recovers and the shrine reveals an ancient relic.', 'The rite collapses and panic echoes through the district.'),
-    ('smuggler_tunnel', 5, 'Smuggler Tunnel', 'A hidden tunnel beneath the harbor is moving weapons under cover of fog.', 1, -1, 'You expose the route and seize the smugglers'' cache.', 'The smugglers escape and the harbor grows more dangerous.'),
-    ('icewind_crossing', 6, 'Icewind Crossing', 'Pilgrims are trapped beyond the city gate as a freezing storm closes in.', 1, -1, 'You escort the pilgrims home and earn the city''s gratitude.', 'The rescue falters and the gate district turns grim.');
+    ('market_riot', 1, '시장 폭동', '달 시장의 거래 분쟁이 곧 폭력 사태로 번질 기세다.', 1, -1, '군중이 진정되고 시장 지도자들이 당신에게 빚을 진다.', '폭동이 번지고 도시가 당신을 신뢰하던 마음도 흔들린다.'),
+    ('broken_rail', 2, '달 철로 파손', '상층 구역으로 향하는 철로가 끊겨 노동자들이 냉기 속에 발이 묶였다.', 1, -1, '구역이 얼어붙기 전에 철로를 복구해 냈다.', '수리가 지연되고 상층 구역은 그 책임을 당신에게 돌린다.'),
+    ('masked_ball', 3, '가면무도회', '향수와 음악 뒤편에서 귀족들의 음모가 모습을 감춘다.', 1, -1, '비밀과 함께 새로운 초대장을 손에 넣고 무도회를 빠져나온다.', '너무 일찍 들켜 버렸고 궁정은 단단히 입을 닫는다.'),
+    ('eclipse_shrine', 4, '월식 사당', '성스러운 의식 도중 사당의 달 거울에 금이 간다.', 1, -1, '의식이 회복되고 사당은 오래된 유물을 드러낸다.', '의식이 무너지고 구역 전체에 공황이 번져 간다.'),
+    ('smuggler_tunnel', 5, '밀수꾼 터널', '항구 밑 숨겨진 터널에서 안개를 틈타 무기가 이동 중이다.', 1, -1, '밀수 경로를 드러내고 그들의 은닉 물자를 압수한다.', '밀수꾼들이 달아나고 항구는 더 위험한 곳이 된다.'),
+    ('icewind_crossing', 6, '한풍 관문', '얼어붙는 폭풍이 닥치며 성문 밖의 순례자들이 고립되었다.', 1, -1, '순례자들을 무사히 데려와 도시의 감사를 얻는다.', '구조가 흔들리고 성문 구역의 분위기는 무겁게 가라앉는다.');
 
 INSERT OR IGNORE INTO event_required_tags (event_id, sort_order, tag) VALUES
     ('market_riot', 1, 'diplomacy'),

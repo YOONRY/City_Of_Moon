@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 from random import Random
+import sqlite3
 
 from moon_card_game.content import (
     build_card_catalog,
@@ -139,6 +140,28 @@ class GameLogicTests(unittest.TestCase):
         self.assertEqual(state.current_event().id, "market_riot")
         self.assertEqual(state.collection["starter_silver_tongue_1"].power_bonus, 1)
         self.assertEqual(state.collection["starter_clockwork_drone_1"].current_durability, 2)
+
+    def test_initialize_database_applies_korean_content_updates(self) -> None:
+        connection = sqlite3.connect(self.db_path)
+        try:
+            connection.execute(
+                "UPDATE cards SET name = ? WHERE id = ?",
+                ("Street Map", "street_map"),
+            )
+            connection.execute(
+                "UPDATE events SET title = ? WHERE id = ?",
+                ("Market Riot", "market_riot"),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+        initialize_database(self.db_path)
+        catalog = build_card_catalog(self.db_path)
+        events = build_story_events(self.db_path)
+
+        self.assertEqual(catalog["street_map"].name, "거리 지도")
+        self.assertEqual(events[0].title, "시장 폭동")
 
     def test_load_returns_none_when_slot_is_missing(self) -> None:
         self.assertFalse(has_saved_game(self.db_path, slot_name="missing"))

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>달의 도시</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="top-bar">
+        <div class="brand-block">
+          <p class="eyebrow">달의 도시</p>
+          <h1>월광 지도</h1>
+        </div>
+        <div class="status-strip" id="statusStrip"></div>
+        <div class="gear-shell" id="gearShell">
+          <div class="gear-drawer" id="gearDrawer" aria-hidden="true">
+            <button class="menu-action" type="button" data-menu-action="save">저장</button>
+            <button class="menu-action" type="button" data-menu-action="load">불러오기</button>
+            <button class="menu-action danger" type="button" data-menu-action="forfeit">포기하기</button>
+          </div>
+          <button class="gear-button" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M19.3 13.5l1.2-1.5-1.4-2.4-1.9.3a6.2 6.2 0 0 0-1.1-.6l-.4-1.9h-2.8l-.4 1.9c-.4.1-.8.3-1.1.5l-1.9-.3-1.4 2.5 1.2 1.4c-.1.4-.1.8-.1 1.2s0 .8.1 1.2l-1.2 1.5 1.4 2.4 1.9-.3c.3.2.7.4 1.1.6l.4 1.9h2.8l.4-1.9c.4-.1.8-.3 1.1-.5l1.9.3 1.4-2.5-1.2-1.4c.1-.4.1-.8.1-1.2s0-.8-.1-1.2zM12 15.4A3.4 3.4 0 1 1 12 8.6a3.4 3.4 0 0 1 0 6.8z" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="board-layout">
+        <section class="map-panel">
+          <div class="map-surface" id="mapSurface">
+            <div class="map-camera" id="mapCamera">
+              <div class="map-grid"></div>
+              <svg class="route-layer" id="routeLayer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+              <div class="event-map" id="eventMap"></div>
+            </div>
+            <div class="focus-glow" id="focusGlow" aria-hidden="true"></div>
+          </div>
+          <aside class="detail-panel" id="detailPanel"></aside>
+          <div class="message-banner" id="messageBanner"></div>
+        </section>
+
+        <section class="hand-panel">
+          <div class="card-rail" id="cardRail"></div>
+          <div class="card-inspector" id="cardInspector" aria-hidden="true"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

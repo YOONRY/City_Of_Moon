@@ -9,6 +9,7 @@ from .save_system import (
     load_game_state,
     save_game_state,
 )
+from .web_ui import run_web_app
 
 __all__ = [
     "CardCategory",
@@ -21,5 +22,6 @@ __all__ = [
     "has_saved_game",
     "initialize_database",
     "load_game_state",
+    "run_web_app",
     "save_game_state",
 ]
