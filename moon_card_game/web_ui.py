@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .game import GameState, create_default_game
-from .models import CardCategory
+from .models import STAT_FIELDS, CardCategory
 from .save_system import DEFAULT_SAVE_SLOT, has_saved_game, load_game_state, save_game_state
 
 WEB_ROOT = Path(__file__).resolve().parent / "web"
@@ -32,29 +32,33 @@ def _serialize_card(game: GameState, instance_id: str) -> dict[str, Any]:
             equipment_instance.display_name(game.catalog[equipment_instance.card_id])
             for equipment_instance in game.equipment_for(instance_id)
         ]
+    effective_stats = game.effective_stats(instance_id)
 
     return {
         "instanceId": card_instance.instance_id,
         "cardId": card.id,
         "name": card_instance.display_name(card),
         "category": card.category.value,
+        "infoKind": card.info_kind,
         "rarity": card.rarity,
         "tags": list(card.tags),
         "description": card.description,
-        "basePower": card.power,
         "powerBonus": card_instance.power_bonus,
-        "equipmentBonus": game.equipment_bonus_for(instance_id)
-        if card.category == CardCategory.PERSON
-        else 0,
-        "power": game.effective_power(instance_id),
+        "baseStats": card.stats(),
+        "stats": effective_stats,
         "durability": card_instance.current_durability,
         "maxDurability": card.max_durability,
         "isUsable": card_instance.is_usable(),
-        "isActiveCard": card.category != CardCategory.EQUIPMENT,
+        "isActiveCard": card.category == CardCategory.PERSON or card.is_general_info(),
         "displayCategory": CATEGORY_LABELS.get(card.category.value, card.category.value),
         "equippedToInstanceId": card_instance.equipped_to_instance_id,
         "equippedToName": equipped_to_name,
         "attachedEquipmentNames": attached_equipment_names,
+        "equipmentBonus": (
+            game.equipment_bonus_for(instance_id)
+            if card.category == CardCategory.PERSON
+            else {stat_name: 0 for stat_name in STAT_FIELDS}
+        ),
     }
 
 
@@ -65,6 +69,8 @@ def _serialize_event(game: GameState, index: int, event) -> dict[str, Any]:
         "id": event.id,
         "title": event.title,
         "description": event.description,
+        "checkStats": list(event.check_stats),
+        "difficulty": event.difficulty,
         "requiredTags": list(event.required_tags),
         "requiredCardIds": list(event.required_card_ids),
         "requiredCardNames": required_card_names,
@@ -133,12 +139,16 @@ class GameSession:
     def state_payload(self) -> dict[str, Any]:
         return serialize_game_state(self.game, self.message, self.save_slot)
 
-    def play_card(self, hand_index: int) -> dict[str, Any]:
+    def play_card(
+        self,
+        hand_index: int,
+        support_hand_index: int | None = None,
+    ) -> dict[str, Any]:
         if self.game.is_won() or self.game.is_lost():
             self.message = "이번 진행은 끝났습니다. 새 게임을 시작하거나 저장을 불러오세요."
             return self.state_payload()
         try:
-            resolution = self.game.play_card(hand_index)
+            resolution = self.game.play_card(hand_index, support_hand_index=support_hand_index)
         except (IndexError, ValueError):
             self.message = "지금은 그 카드를 사용할 수 없습니다."
             return self.state_payload()
@@ -246,7 +256,16 @@ def _build_handler(session: GameSession):
                     hand_index = int(data.get("handIndex", -1))
                 except (TypeError, ValueError):
                     hand_index = -1
-                self._send_json(session.play_card(hand_index))
+                try:
+                    raw_support_index = data.get("supportHandIndex")
+                    support_hand_index = (
+                        int(raw_support_index)
+                        if raw_support_index is not None
+                        else None
+                    )
+                except (TypeError, ValueError):
+                    support_hand_index = None
+                self._send_json(session.play_card(hand_index, support_hand_index))
                 return
             if self.path == "/api/skip":
                 self._send_json(session.skip_event())

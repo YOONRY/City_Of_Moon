@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
+STAT_FIELDS = ("strength", "agility", "intelligence", "charm")
+
 
 class CardCategory(StrEnum):
     PERSON = "person"
@@ -17,9 +19,27 @@ class CardDefinition:
     category: CardCategory
     tags: tuple[str, ...]
     description: str
-    power: int = 1
+    info_kind: str = ""
+    strength: int = 0
+    agility: int = 0
+    intelligence: int = 0
+    charm: int = 0
     max_durability: int = 3
     rarity: str = "common"
+
+    def stats(self) -> dict[str, int]:
+        return {
+            "strength": self.strength,
+            "agility": self.agility,
+            "intelligence": self.intelligence,
+            "charm": self.charm,
+        }
+
+    def is_general_info(self) -> bool:
+        return self.category == CardCategory.INFO and self.info_kind == "general"
+
+    def is_exclusive_info(self) -> bool:
+        return self.category == CardCategory.INFO and self.info_kind == "exclusive"
 
 
 @dataclass
@@ -31,8 +51,22 @@ class CardInstance:
     nickname: str = ""
     equipped_to_instance_id: str = ""
 
-    def effective_power(self, card: CardDefinition, extra_bonus: int = 0) -> int:
-        return max(card.power + self.power_bonus + extra_bonus, 0)
+    def stat_value(self, card: CardDefinition, stat_name: str, extra_bonus: int = 0) -> int:
+        return max(getattr(card, stat_name) + extra_bonus, 0)
+
+    def effective_stats(
+        self,
+        card: CardDefinition,
+        extra_bonuses: dict[str, int] | None = None,
+    ) -> dict[str, int]:
+        bonuses = extra_bonuses or {}
+        return {
+            stat_name: self.stat_value(card, stat_name, bonuses.get(stat_name, 0))
+            for stat_name in STAT_FIELDS
+        }
+
+    def check_bonus(self) -> int:
+        return max(self.power_bonus, 0)
 
     def display_name(self, card: CardDefinition) -> str:
         return self.nickname or card.name
@@ -49,6 +83,8 @@ class Event:
     id: str
     title: str
     description: str
+    check_stats: tuple[str, ...]
+    difficulty: int
     required_tags: tuple[str, ...]
     required_card_ids: tuple[str, ...] = ()
     bonus_tags: tuple[str, ...] = ()

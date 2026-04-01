@@ -62,8 +62,12 @@ def build_card_catalog(db_path: str | Path | None = None) -> dict[str, CardDefin
                 id,
                 name,
                 category,
+                info_kind,
                 description,
-                power,
+                strength,
+                agility,
+                intelligence,
+                charm,
                 max_durability,
                 rarity
             FROM cards
@@ -75,9 +79,13 @@ def build_card_catalog(db_path: str | Path | None = None) -> dict[str, CardDefin
             id=row["id"],
             name=row["name"],
             category=CardCategory(row["category"]),
+            info_kind=row["info_kind"],
             tags=tag_map.get(row["id"], ()),
             description=row["description"],
-            power=row["power"],
+            strength=row["strength"],
+            agility=row["agility"],
+            intelligence=row["intelligence"],
+            charm=row["charm"],
             max_durability=row["max_durability"],
             rarity=row["rarity"],
         )
@@ -112,12 +120,19 @@ def build_story_events(db_path: str | Path | None = None) -> list[Event]:
             "event_id",
             "card_id",
         )
+        check_stat_map = _load_grouped_values(
+            connection,
+            "event_check_stats",
+            "event_id",
+            "stat_name",
+        )
         rows = connection.execute(
             """
             SELECT
                 id,
                 title,
                 description,
+                difficulty,
                 success_delta,
                 failure_delta,
                 success_text,
@@ -131,6 +146,8 @@ def build_story_events(db_path: str | Path | None = None) -> list[Event]:
             id=row["id"],
             title=row["title"],
             description=row["description"],
+            check_stats=check_stat_map.get(row["id"], ()),
+            difficulty=row["difficulty"],
             required_tags=required_tag_map.get(row["id"], ()),
             required_card_ids=required_card_map.get(row["id"], ()),
             bonus_tags=bonus_tag_map.get(row["id"], ()),

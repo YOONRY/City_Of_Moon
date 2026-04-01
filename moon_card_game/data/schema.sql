@@ -4,8 +4,12 @@ CREATE TABLE IF NOT EXISTS cards (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     category TEXT NOT NULL,
+    info_kind TEXT NOT NULL DEFAULT '' CHECK (info_kind IN ('', 'general', 'exclusive')),
     description TEXT NOT NULL,
-    power INTEGER NOT NULL DEFAULT 1 CHECK (power >= 0),
+    strength INTEGER NOT NULL DEFAULT 0 CHECK (strength >= 0),
+    agility INTEGER NOT NULL DEFAULT 0 CHECK (agility >= 0),
+    intelligence INTEGER NOT NULL DEFAULT 0 CHECK (intelligence >= 0),
+    charm INTEGER NOT NULL DEFAULT 0 CHECK (charm >= 0),
     max_durability INTEGER NOT NULL DEFAULT 3 CHECK (max_durability > 0),
     rarity TEXT NOT NULL DEFAULT 'common'
 );
@@ -24,10 +28,20 @@ CREATE TABLE IF NOT EXISTS events (
     sort_order INTEGER NOT NULL UNIQUE,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
+    difficulty INTEGER NOT NULL DEFAULT 3 CHECK (difficulty >= 0),
     success_delta INTEGER NOT NULL DEFAULT 1,
     failure_delta INTEGER NOT NULL DEFAULT -1,
     success_text TEXT NOT NULL DEFAULT '',
     failure_text TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS event_check_stats (
+    event_id TEXT NOT NULL,
+    sort_order INTEGER NOT NULL,
+    stat_name TEXT NOT NULL CHECK (stat_name IN ('strength', 'agility', 'intelligence', 'charm')),
+    PRIMARY KEY (event_id, sort_order),
+    UNIQUE (event_id, stat_name),
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS event_required_tags (
@@ -124,6 +138,7 @@ CREATE TABLE IF NOT EXISTS save_piles (
 
 CREATE INDEX IF NOT EXISTS idx_cards_category ON cards(category);
 CREATE INDEX IF NOT EXISTS idx_card_tags_tag ON card_tags(tag);
+CREATE INDEX IF NOT EXISTS idx_event_check_stats_event ON event_check_stats(event_id);
 CREATE INDEX IF NOT EXISTS idx_event_required_tags_tag ON event_required_tags(tag);
 CREATE INDEX IF NOT EXISTS idx_event_required_cards_card ON event_required_cards(card_id);
 CREATE INDEX IF NOT EXISTS idx_event_bonus_tags_tag ON event_bonus_tags(tag);

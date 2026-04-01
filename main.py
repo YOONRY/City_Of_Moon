@@ -41,6 +41,16 @@ RARITY_LABELS = {
     "uncommon": "고급",
     "rare": "희귀",
 }
+INFO_KIND_LABELS = {
+    "general": "범용 정보",
+    "exclusive": "전용 정보",
+}
+STAT_LABELS = {
+    "strength": "근",
+    "agility": "민",
+    "intelligence": "지",
+    "charm": "매",
+}
 
 
 def format_tags(tags: tuple[str, ...]) -> str:
@@ -55,29 +65,30 @@ def format_rarity(rarity: str) -> str:
     return RARITY_LABELS.get(rarity, rarity)
 
 
+def format_info_kind(card: CardDefinition) -> str:
+    if card.category.value != "info":
+        return ""
+    return INFO_KIND_LABELS.get(card.info_kind, "정보")
+
+
 def format_instance_stats(
     game: GameState,
     card: CardDefinition,
     card_instance: CardInstance,
 ) -> str:
-    equipment_bonus = (
-        game.equipment_bonus_for(card_instance.instance_id)
-        if card.category.value == "person"
-        else 0
+    effective_stats = game.effective_stats(card_instance.instance_id)
+    stats_text = " ".join(
+        f"{STAT_LABELS[stat_name]} {effective_stats[stat_name]}"
+        for stat_name in STAT_LABELS
     )
     if card.category.value == "equipment":
-        return f"보정 +{card_instance.effective_power(card)}"
-    if equipment_bonus > 0:
-        return (
-            f"대응력 {game.effective_power(card_instance.instance_id)} "
-            f"(기본 {card.power}{card_instance.power_bonus:+d}, 장비 +{equipment_bonus}) | "
-            f"내구 {card_instance.current_durability}/{card.max_durability}"
-        )
-    return (
-        f"대응력 {game.effective_power(card_instance.instance_id)} "
-        f"(기본 {card.power}{card_instance.power_bonus:+d}) | "
-        f"내구 {card_instance.current_durability}/{card.max_durability}"
+        return f"{stats_text} | 장비 보정 | 내구 {card_instance.current_durability}/{card.max_durability}"
+    bonus_text = (
+        f" | 숙련 +{card_instance.power_bonus}"
+        if card_instance.power_bonus
+        else ""
     )
+    return f"{stats_text}{bonus_text} | 내구 {card_instance.current_durability}/{card.max_durability}"
 
 
 def equipment_note(game: GameState, instance_id: str) -> str:
@@ -99,13 +110,24 @@ def equipment_note(game: GameState, instance_id: str) -> str:
     return ""
 
 
+def parse_play_input(raw: str) -> tuple[int, int | None] | None:
+    if "+" in raw:
+        left, right = [part.strip() for part in raw.split("+", maxsplit=1)]
+        if left.isdigit() and right.isdigit():
+            return int(left) - 1, int(right) - 1
+        return None
+    if raw.isdigit():
+        return int(raw) - 1, None
+    return None
+
+
 def print_intro() -> None:
     print("=" * 64)
     print("달의 도시 - 해결사 카드 프로토타입")
     print("=" * 64)
     print("도시의 해결사로서 의뢰와 사건을 처리하며 안정도를 지키세요.")
     print(
-        "명령어: 숫자 = 카드 사용, info <n> = 카드 상세, "
+        "명령어: 숫자 = 인물 카드 사용, 숫자+숫자 = 인물+범용정보 사용, info <n> = 카드 상세, "
         "collection = 소지 카드, save = 저장, "
         "load = 불러오기, skip = 넘기기, q = 종료"
     )
@@ -126,7 +148,9 @@ def print_collection(game: GameState) -> None:
                 f"    {card_instance.display_name(card)} "
                 f"[{card_instance.instance_id}] "
                 f"({format_rarity(card.rarity)}) {format_instance_stats(game, card, card_instance)} "
-                f"[{format_tags(card.tags)}]{equipment_note(game, card_instance.instance_id)}"
+                f"[{format_tags(card.tags)}]"
+                f"{f' | {format_info_kind(card)}' if format_info_kind(card) else ''}"
+                f"{equipment_note(game, card_instance.instance_id)}"
             )
     print()
 
@@ -139,6 +163,8 @@ def print_status(game: GameState) -> None:
     print(f"안정도: {game.stability} | 해결한 사건: {game.completed_events}")
     print(f"의뢰/사건: {event.title}")
     print(event.description)
+    checked_stats = ", ".join(STAT_LABELS.get(stat_name, stat_name) for stat_name in event.check_stats)
+    print(f"체크 스탯: {checked_stats} | 목표치: {event.difficulty}")
     print(f"필수 태그: {format_tags(event.required_tags)}")
     if event.required_card_ids:
         required_names = ", ".join(game.catalog[card_id].name for card_id in event.required_card_ids)
@@ -157,7 +183,9 @@ def print_status(game: GameState) -> None:
         print(
             f"  {index}. {card_instance.display_name(card)} "
             f"[{card_instance.instance_id}] "
-            f"[{format_category(card.category.value)} | {format_tags(card.tags)}] "
+            f"[{format_category(card.category.value)}"
+            f"{f'/{format_info_kind(card)}' if format_info_kind(card) else ''}"
+            f" | {format_tags(card.tags)}] "
             f"{format_instance_stats(game, card, card_instance)}"
             f"{equipment_note(game, instance_id)}"
         )
@@ -173,6 +201,8 @@ def print_card_detail(game: GameState, hand_index: int) -> None:
         f"({format_rarity(card.rarity)})"
     )
     print(f"분류: {format_category(card.category.value)}")
+    if format_info_kind(card):
+        print(f"정보 타입: {format_info_kind(card)}")
     print(f"태그: {format_tags(card.tags)}")
     print(f"능력치: {format_instance_stats(game, card, card_instance)}")
     note = equipment_note(game, instance_id)
@@ -285,21 +315,33 @@ def game_loop(
                 continue
             print_card_detail(game, hand_index)
             continue
-        if not lowered.isdigit():
+        parsed_play = parse_play_input(lowered)
+        if parsed_play is None:
             print(
-                "카드 번호나 'info <n>', 'collection', "
+                "카드 번호, '주카드+정보카드', 'info <n>', 'collection', "
                 "'save', 'load', 'skip', 'q'를 입력하세요."
             )
             print()
             continue
 
-        hand_index = int(lowered) - 1
+        hand_index, support_hand_index = parsed_play
         if hand_index < 0 or hand_index >= len(game.hand):
             print("그 번호의 카드는 손패에 없습니다.")
             print()
             continue
+        if support_hand_index is not None and (
+            support_hand_index < 0 or support_hand_index >= len(game.hand)
+        ):
+            print("보조 정보 카드 번호가 손패에 없습니다.")
+            print()
+            continue
 
-        resolution = game.play_card(hand_index)
+        try:
+            resolution = game.play_card(hand_index, support_hand_index=support_hand_index)
+        except ValueError as error:
+            print(str(error))
+            print()
+            continue
         played_name = (
             resolution.card_instance.display_name(resolution.card)
             if resolution.card is not None and resolution.card_instance is not None

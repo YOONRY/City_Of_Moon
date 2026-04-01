@@ -7,7 +7,7 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DEFAULT_DATABASE_FILENAME = "city_of_moon.sqlite3"
-CURRENT_SCHEMA_VERSION = 4
+CURRENT_SCHEMA_VERSION = 5
 
 
 def get_default_database_path() -> Path:
@@ -30,12 +30,28 @@ def _table_columns(connection: sqlite3.Connection, table_name: str) -> set[str]:
 
 
 def _migrate_existing_data(connection: sqlite3.Connection) -> None:
-    if _table_exists(connection, "cards") and "max_durability" not in _table_columns(
+    if _table_exists(connection, "cards"):
+        card_columns = _table_columns(connection, "cards")
+        if "max_durability" not in card_columns:
+            connection.execute(
+                "ALTER TABLE cards ADD COLUMN max_durability INTEGER NOT NULL DEFAULT 3"
+            )
+        for stat_name in ("strength", "agility", "intelligence", "charm"):
+            if stat_name not in card_columns:
+                connection.execute(
+                    f"ALTER TABLE cards ADD COLUMN {stat_name} INTEGER NOT NULL DEFAULT 0"
+                )
+        if "info_kind" not in card_columns:
+            connection.execute(
+                "ALTER TABLE cards ADD COLUMN info_kind TEXT NOT NULL DEFAULT ''"
+            )
+
+    if _table_exists(connection, "events") and "difficulty" not in _table_columns(
         connection,
-        "cards",
+        "events",
     ):
         connection.execute(
-            "ALTER TABLE cards ADD COLUMN max_durability INTEGER NOT NULL DEFAULT 3"
+            "ALTER TABLE events ADD COLUMN difficulty INTEGER NOT NULL DEFAULT 3"
         )
 
     if not _table_exists(connection, "starter_card_instances"):

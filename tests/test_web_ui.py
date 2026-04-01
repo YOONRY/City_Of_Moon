@@ -29,6 +29,9 @@ class WebUiTests(unittest.TestCase):
         self.assertTrue(payload["events"][0]["isCurrent"])
         self.assertTrue(any(card["category"] == "equipment" for card in payload["collection"]))
         self.assertTrue(any(event["requiredCardNames"] for event in payload["events"]))
+        self.assertTrue(all("stats" in card for card in payload["collection"]))
+        self.assertTrue(all("checkStats" in event for event in payload["events"]))
+        self.assertTrue(any(card["infoKind"] == "general" for card in payload["collection"]))
         self.assertTrue((WEB_ROOT / "index.html").exists())
         self.assertTrue((WEB_ROOT / "styles.css").exists())
         self.assertTrue((WEB_ROOT / "app.js").exists())
@@ -41,15 +44,25 @@ class WebUiTests(unittest.TestCase):
             card for card in payload["collection"] if card["category"] == "equipment"
         )
         person_card = next(card for card in payload["collection"] if card["category"] == "person")
+        general_info_card = next(
+            card for card in payload["collection"] if card["category"] == "info" and card["infoKind"] == "general"
+        )
 
         self.assertTrue(equipment_card["equippedToName"])
         self.assertIsInstance(person_card["attachedEquipmentNames"], list)
+        self.assertEqual(set(person_card["stats"].keys()), {"strength", "agility", "intelligence", "charm"})
+        self.assertEqual(general_info_card["infoKind"], "general")
 
     def test_session_save_load_and_new_game_round_trip(self) -> None:
         session = GameSession(db_path=self.db_path, save_slot="ui_slot")
 
         first_event_id = session.state_payload()["events"][0]["id"]
-        played_payload = session.play_card(0)
+        primary_index = next(
+            index
+            for index, card in enumerate(session.state_payload()["hand"])
+            if card["category"] == "person"
+        )
+        played_payload = session.play_card(primary_index)
 
         self.assertEqual(played_payload["completedEvents"], 1)
         self.assertNotEqual(played_payload["events"][0]["id"], first_event_id)

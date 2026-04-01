@@ -32,11 +32,18 @@ const TAG_LABELS = {
   evidence: "증거",
   permit: "허가",
 };
+const STAT_LABELS = {
+  strength: "근",
+  agility: "민",
+  intelligence: "지",
+  charm: "매",
+};
 
 const state = {
   payload: null,
   selectedEventIndex: null,
   stagedCardInstanceId: null,
+  stagedSupportInstanceId: null,
   draggingCardInstanceId: null,
   selectedCardInstanceId: null,
   isMenuOpen: false,
@@ -90,26 +97,68 @@ function eventNeedsSpecificInfo(event) {
   return Boolean(event?.requiredCardIds?.length);
 }
 
-function cardMatchesEvent(card, event) {
-  if (!event || card.category === "equipment") {
-    return false;
-  }
-  const hasRequiredTag =
-    event.requiredTags.length === 0 ||
-    card.tags.some((tag) => event.requiredTags.includes(tag));
-  const hasRequiredCard =
-    !eventNeedsSpecificInfo(event) || event.requiredCardIds.includes(card.cardId);
-  return hasRequiredTag && hasRequiredCard;
+function displayStat(stat) {
+  return STAT_LABELS[stat] ?? stat;
 }
 
-function cardPowerText(card) {
+function isPerson(card) {
+  return card?.category === "person";
+}
+
+function isGeneralInfo(card) {
+  return card?.category === "info" && card?.infoKind === "general";
+}
+
+function isExclusiveInfo(card) {
+  return card?.category === "info" && card?.infoKind === "exclusive";
+}
+
+function statSummary(stats) {
+  return ["strength", "agility", "intelligence", "charm"]
+    .map((stat) => `${displayStat(stat)}${stats[stat] ?? 0}`)
+    .join("·");
+}
+
+function eventCheckValue(card, event) {
+  if (!event) {
+    return 0;
+  }
+  return event.checkStats.reduce((sum, stat) => sum + (card.stats?.[stat] ?? 0), 0);
+}
+
+function canBePrimaryForEvent(card, event) {
+  if (!event || !isPerson(card)) {
+    return false;
+  }
+  return eventCheckValue(card, event) > 0;
+}
+
+function canBeSupportForEvent(card, event) {
+  if (!event || !isGeneralInfo(card)) {
+    return false;
+  }
+  return eventCheckValue(card, event) > 0;
+}
+
+function cardMatchesEvent(card, event) {
+  return canBePrimaryForEvent(card, event) || canBeSupportForEvent(card, event);
+}
+
+function eventCheckText(card, event) {
+  if (!event) {
+    return "";
+  }
+  return `판정 ${eventCheckValue(card, event)} / ${event.difficulty}`;
+}
+
+function cardStatsText(card) {
   if (card.category === "equipment") {
-    return `보정 +${card.power}`;
+    return `장비 보정 ${statSummary(card.stats)}`;
   }
-  if (card.equipmentBonus > 0) {
-    return `대응 ${card.power} (+장비 ${card.equipmentBonus})`;
+  if (card.powerBonus) {
+    return `${statSummary(card.stats)} | 숙련 +${card.powerBonus}`;
   }
-  return `대응 ${card.power}`;
+  return statSummary(card.stats);
 }
 
 function cardDurabilityText(card) {
@@ -127,6 +176,14 @@ function cardAttachmentSummary(card) {
     return `장착 장비: ${card.attachedEquipmentNames.join(", ")}`;
   }
   return "";
+}
+
+function ownsRequiredInfoForEvent(event) {
+  if (!eventNeedsSpecificInfo(event) || !state.payload) {
+    return true;
+  }
+  const ownedCardIds = new Set(state.payload.collection.map((card) => card.cardId));
+  return event.requiredCardIds.every((cardId) => ownedCardIds.has(cardId));
 }
 
 function activeEvent() {
@@ -183,6 +240,13 @@ function stagedCard() {
   return findCard(state.stagedCardInstanceId);
 }
 
+function stagedSupportCard() {
+  if (!state.stagedSupportInstanceId) {
+    return null;
+  }
+  return findCard(state.stagedSupportInstanceId);
+}
+
 function normalizeState() {
   if (!state.payload) {
     return;
@@ -197,12 +261,23 @@ function normalizeState() {
 
   const filterEvent = selectedEvent();
   const staged = stagedCard();
-  if (!filterEvent || !staged || !cardMatchesEvent(staged, filterEvent)) {
+  if (!filterEvent || !staged || !canBePrimaryForEvent(staged, filterEvent)) {
     state.stagedCardInstanceId = null;
+  }
+  const stagedSupport = stagedSupportCard();
+  if (!filterEvent || !stagedSupport || !canBeSupportForEvent(stagedSupport, filterEvent)) {
+    state.stagedSupportInstanceId = null;
+  }
+  if (
+    state.stagedCardInstanceId &&
+    state.stagedSupportInstanceId &&
+    state.stagedCardInstanceId === state.stagedSupportInstanceId
+  ) {
+    state.stagedSupportInstanceId = null;
   }
 
   const chosenCard = selectedCard();
-  if (!chosenCard || (filterEvent && !cardMatchesEvent(chosenCard, filterEvent))) {
+  if (!chosenCard || (filterEvent && !cardMatchesEvent(chosenCard, filterEvent) && !isExclusiveInfo(chosenCard))) {
     state.selectedCardInstanceId = null;
   }
 }
@@ -235,16 +310,27 @@ function cardsForRail() {
   return cards;
 }
 
-function canCommitDraggedCard(filterEvent, card) {
+function canCommitDraggedCard(filterEvent, card, supportCard) {
   if (!state.payload || !filterEvent || !card) {
     return false;
   }
+  const supportValid =
+    !supportCard ||
+    (
+      supportCard.isUsable &&
+      supportCard.isInHand &&
+      isGeneralInfo(supportCard) &&
+      handIndexForCard(supportCard.instanceId) >= 0 &&
+      supportCard.instanceId !== card.instanceId
+    );
   return (
     !state.payload.isOver &&
     filterEvent.isCurrent &&
+    isPerson(card) &&
     card.isUsable &&
     card.isInHand &&
-    handIndexForCard(card.instanceId) >= 0
+    handIndexForCard(card.instanceId) >= 0 &&
+    supportValid
   );
 }
 
@@ -255,7 +341,7 @@ function canQuickPlay(card) {
   const filterEvent = selectedEvent();
   return (
     !state.payload.isOver &&
-    card.category !== "equipment" &&
+    isPerson(card) &&
     card.isUsable &&
     card.isInHand &&
     handIndexForCard(card.instanceId) >= 0 &&
@@ -272,6 +358,12 @@ function cardStateBadge(card, filterEvent) {
       label: card.equippedToName ? "장착됨" : "장비",
       className: "state-preview",
     };
+  }
+  if (isExclusiveInfo(card)) {
+    return { label: "전용정보", className: "state-preview" };
+  }
+  if (isGeneralInfo(card)) {
+    return { label: "범용정보", className: "state-preview" };
   }
   if (filterEvent && !filterEvent.isCurrent) {
     return { label: "미리보기", className: "state-preview" };
@@ -406,9 +498,14 @@ function dropZoneContent(card, filterEvent) {
       </div>
       <p class="drop-card-copy">${escapeHtml(card.description)}</p>
       <div class="stat-row">
-        <span class="stat-chip">${escapeHtml(cardPowerText(card))}</span>
+        <span class="stat-chip">${escapeHtml(cardStatsText(card))}</span>
         <span class="stat-chip">${escapeHtml(cardDurabilityText(card))}</span>
       </div>
+      ${
+        filterEvent
+          ? `<div class="stat-row"><span class="stat-chip">${escapeHtml(eventCheckText(card, filterEvent))}</span></div>`
+          : ""
+      }
       ${
         cardAttachmentSummary(card)
           ? `<p class="drop-card-copy">${escapeHtml(cardAttachmentSummary(card))}</p>`
@@ -440,7 +537,9 @@ function renderDetailPanel() {
 
   const matchingCards = payload.collection.filter((card) => cardMatchesEvent(card, event));
   const staged = stagedCard();
-  const canCommit = canCommitDraggedCard(filterEvent, staged);
+  const stagedSupport = stagedSupportCard();
+  const canCommit = canCommitDraggedCard(filterEvent, staged, stagedSupport);
+  const ownsRequiredInfo = ownsRequiredInfoForEvent(event);
 
   if (!filterEvent) {
     refs.detailPanel.innerHTML = `
@@ -453,9 +552,17 @@ function renderDetailPanel() {
         <div class="detail-meta">
           <span class="detail-stat">투입 가능 카드 ${matchingCards.length}</span>
           <span class="detail-stat">보상 ${escapeHtml(event.rewardNames.join(", ") || "미확인")}</span>
+          <span class="detail-stat">${ownsRequiredInfo ? "전용 정보 확보" : "전용 정보 부족"}</span>
         </div>
         <div>
-          <p class="eyebrow">필수 태그</p>
+          <p class="eyebrow">체크 스탯</p>
+          <div class="tag-group">
+            ${event.checkStats.map((stat) => `<span class="tag-pill">${escapeHtml(displayStat(stat))}</span>`).join("")}
+            <span class="tag-pill bonus">목표 ${escapeHtml(event.difficulty)}</span>
+          </div>
+        </div>
+        <div>
+          <p class="eyebrow">현장 키워드</p>
           <div class="tag-group">
             ${event.requiredTags.map((tag) => `<span class="tag-pill">${escapeHtml(displayTag(tag))}</span>`).join("")}
           </div>
@@ -487,9 +594,17 @@ function renderDetailPanel() {
       <div class="detail-meta">
         <span class="detail-stat">투입 가능 카드 ${matchingCards.length}</span>
         <span class="detail-stat">${filterEvent.isCurrent ? "진행 중" : "미리보기"}</span>
+        <span class="detail-stat">${ownsRequiredInfo ? "전용 정보 확보" : "전용 정보 부족"}</span>
       </div>
       <div>
-        <p class="eyebrow">필수 태그</p>
+        <p class="eyebrow">체크 스탯</p>
+        <div class="tag-group">
+          ${filterEvent.checkStats.map((stat) => `<span class="tag-pill">${escapeHtml(displayStat(stat))}</span>`).join("")}
+          <span class="tag-pill bonus">목표 ${escapeHtml(filterEvent.difficulty)}</span>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow">현장 키워드</p>
         <div class="tag-group">
           ${filterEvent.requiredTags.map((tag) => `<span class="tag-pill">${escapeHtml(displayTag(tag))}</span>`).join("")}
         </div>
@@ -521,21 +636,29 @@ function renderDetailPanel() {
           : ""
       }
       <div class="drop-lab">
-        <div class="drop-zone${staged ? " has-card" : ""}" data-drop-zone>
+        <p class="eyebrow">인물 투입</p>
+        <div class="drop-zone${staged ? " has-card" : ""}" data-drop-zone="primary">
           ${dropZoneContent(staged, filterEvent)}
         </div>
-      <div class="drop-actions">
+        <p class="eyebrow">범용 정보 지원</p>
+        <div class="drop-zone${stagedSupport ? " has-card" : ""}" data-drop-zone="support">
+          ${dropZoneContent(stagedSupport, filterEvent)}
+        </div>
+       <div class="drop-actions">
           <button class="play-button" type="button" data-commit-card ${canCommit ? "" : "disabled"}>
             ${
               canCommit
                 ? "올린 카드 사용"
                 : filterEvent.isCurrent
-                  ? "손패 카드 필요"
+                  ? "인물 카드 필요"
                   : "미리보기 전용"
             }
           </button>
           <button class="chrome-button" type="button" data-clear-slot ${staged ? "" : "disabled"}>
-            비우기
+            인물 비우기
+          </button>
+          <button class="chrome-button" type="button" data-clear-support ${stagedSupport ? "" : "disabled"}>
+            정보 비우기
           </button>
           ${
             filterEvent.isCurrent && !payload.isOver
@@ -559,33 +682,66 @@ function renderDetailPanel() {
     </div>
   `;
 
-  const dropZone = refs.detailPanel.querySelector("[data-drop-zone]");
+  const primaryDropZone = refs.detailPanel.querySelector('[data-drop-zone="primary"]');
+  const supportDropZone = refs.detailPanel.querySelector('[data-drop-zone="support"]');
   const commitButton = refs.detailPanel.querySelector("[data-commit-card]");
   const clearButton = refs.detailPanel.querySelector("[data-clear-slot]");
+  const clearSupportButton = refs.detailPanel.querySelector("[data-clear-support]");
   const skipButton = refs.detailPanel.querySelector("[data-skip-event]");
 
-  if (dropZone) {
-    dropZone.addEventListener("dragenter", (eventObject) => {
+  if (primaryDropZone) {
+    primaryDropZone.addEventListener("dragenter", (eventObject) => {
       eventObject.preventDefault();
-      dropZone.classList.add("is-over");
+      primaryDropZone.classList.add("is-over");
     });
-    dropZone.addEventListener("dragover", (eventObject) => {
+    primaryDropZone.addEventListener("dragover", (eventObject) => {
       eventObject.preventDefault();
-      dropZone.classList.add("is-over");
+      primaryDropZone.classList.add("is-over");
     });
-    dropZone.addEventListener("dragleave", () => {
-      dropZone.classList.remove("is-over");
+    primaryDropZone.addEventListener("dragleave", () => {
+      primaryDropZone.classList.remove("is-over");
     });
-    dropZone.addEventListener("drop", (eventObject) => {
+    primaryDropZone.addEventListener("drop", (eventObject) => {
       eventObject.preventDefault();
-      dropZone.classList.remove("is-over");
+      primaryDropZone.classList.remove("is-over");
       const droppedId =
         state.draggingCardInstanceId ||
         eventObject.dataTransfer?.getData("text/plain") ||
         "";
       const droppedCard = findCard(droppedId);
-      if (droppedCard && cardMatchesEvent(droppedCard, filterEvent)) {
+      if (droppedCard && canBePrimaryForEvent(droppedCard, filterEvent)) {
         state.stagedCardInstanceId = droppedId;
+        render();
+      }
+    });
+  }
+
+  if (supportDropZone) {
+    supportDropZone.addEventListener("dragenter", (eventObject) => {
+      eventObject.preventDefault();
+      supportDropZone.classList.add("is-over");
+    });
+    supportDropZone.addEventListener("dragover", (eventObject) => {
+      eventObject.preventDefault();
+      supportDropZone.classList.add("is-over");
+    });
+    supportDropZone.addEventListener("dragleave", () => {
+      supportDropZone.classList.remove("is-over");
+    });
+    supportDropZone.addEventListener("drop", (eventObject) => {
+      eventObject.preventDefault();
+      supportDropZone.classList.remove("is-over");
+      const droppedId =
+        state.draggingCardInstanceId ||
+        eventObject.dataTransfer?.getData("text/plain") ||
+        "";
+      const droppedCard = findCard(droppedId);
+      if (
+        droppedCard &&
+        canBeSupportForEvent(droppedCard, filterEvent) &&
+        droppedCard.instanceId !== state.stagedCardInstanceId
+      ) {
+        state.stagedSupportInstanceId = droppedId;
         render();
       }
     });
@@ -595,8 +751,13 @@ function renderDetailPanel() {
     commitButton.addEventListener("click", async () => {
       const card = stagedCard();
       const handIndex = card ? handIndexForCard(card.instanceId) : -1;
-      if (handIndex >= 0 && canCommitDraggedCard(filterEvent, card)) {
-        await postAction("/api/play", { handIndex });
+      const supportCard = stagedSupportCard();
+      const supportHandIndex = supportCard ? handIndexForCard(supportCard.instanceId) : -1;
+      if (handIndex >= 0 && canCommitDraggedCard(filterEvent, card, supportCard)) {
+        await postAction("/api/play", {
+          handIndex,
+          supportHandIndex: supportHandIndex >= 0 ? supportHandIndex : null,
+        });
       }
     });
   }
@@ -604,6 +765,13 @@ function renderDetailPanel() {
   if (clearButton) {
     clearButton.addEventListener("click", () => {
       state.stagedCardInstanceId = null;
+      render();
+    });
+  }
+
+  if (clearSupportButton) {
+    clearSupportButton.addEventListener("click", () => {
+      state.stagedSupportInstanceId = null;
       render();
     });
   }
@@ -673,7 +841,7 @@ function renderCards() {
         <span class="card-art-badge">${escapeHtml(badge.label)}</span>
       </div>
       <div class="card-mini-row">
-        <span class="card-mini-meta">${escapeHtml(cardPowerText(card))}</span>
+        <span class="card-mini-meta">${escapeHtml(filterEvent ? eventCheckText(card, filterEvent) : cardStatsText(card))}</span>
         <span class="card-mini-meta">${
           card.category === "equipment"
             ? escapeHtml(card.equippedToName ? `장착: ${card.equippedToName}` : "장비")
@@ -728,15 +896,20 @@ function renderCardInspector() {
 
   const filterEvent = selectedEvent();
   const visual = visualForCategory(card.category);
-  const canStage = Boolean(filterEvent) && cardMatchesEvent(card, filterEvent);
+  const canStagePrimary = Boolean(filterEvent) && canBePrimaryForEvent(card, filterEvent);
+  const canStageSupport = Boolean(filterEvent) && canBeSupportForEvent(card, filterEvent);
+  const canStage = canStagePrimary || canStageSupport;
   const canPlay = canQuickPlay(card);
   const isStaged = state.stagedCardInstanceId === card.instanceId;
+  const isSupportStaged = state.stagedSupportInstanceId === card.instanceId;
   const badge = cardStateBadge(card, filterEvent);
-  const stageLabel = filterEvent
-    ? filterEvent.isCurrent
-      ? "사건 슬롯에 올리기"
-      : "슬롯에서 미리보기"
-    : "먼저 사건 선택";
+  const stageLabel = !filterEvent
+    ? "먼저 사건 선택"
+    : canStagePrimary
+      ? (filterEvent.isCurrent ? "인물 슬롯에 올리기" : "인물 슬롯 미리보기")
+      : canStageSupport
+        ? (filterEvent.isCurrent ? "정보 슬롯에 올리기" : "정보 슬롯 미리보기")
+        : "이 사건에 사용 불가";
 
   refs.cardInspector.className = "card-inspector open";
   refs.cardInspector.setAttribute("aria-hidden", "false");
@@ -755,9 +928,14 @@ function renderCardInspector() {
         </div>
         <div class="detail-meta">
           <span class="detail-stat">${escapeHtml(badge.label)}</span>
-          <span class="detail-stat">${escapeHtml(cardPowerText(card))}</span>
+          <span class="detail-stat">${escapeHtml(cardStatsText(card))}</span>
           <span class="detail-stat">${escapeHtml(cardDurabilityText(card))}</span>
         </div>
+        ${
+          filterEvent
+            ? `<div class="detail-meta"><span class="detail-stat">${escapeHtml(eventCheckText(card, filterEvent))}</span></div>`
+            : ""
+        }
         <p class="detail-copy">${escapeHtml(card.description)}</p>
         ${
           cardAttachmentSummary(card)
@@ -775,7 +953,7 @@ function renderCardInspector() {
             ${canPlay ? "바로 사용" : "바로 사용 불가"}
           </button>
           <button class="chrome-button" type="button" data-close-inspector>
-            ${isStaged ? "닫기 (올림)" : "닫기"}
+            ${isStaged ? "닫기 (인물 올림)" : isSupportStaged ? "닫기 (정보 올림)" : "닫기"}
           </button>
         </div>
       </div>
@@ -805,8 +983,17 @@ function renderCardInspector() {
   const stageButton = refs.cardInspector.querySelector("[data-stage-card]");
   if (stageButton) {
     stageButton.addEventListener("click", () => {
-      if (canStage) {
+      if (canStagePrimary) {
         state.stagedCardInstanceId = card.instanceId;
+        if (state.stagedSupportInstanceId === card.instanceId) {
+          state.stagedSupportInstanceId = null;
+        }
+        render();
+      } else if (canStageSupport) {
+        state.stagedSupportInstanceId = card.instanceId;
+        if (state.stagedCardInstanceId === card.instanceId) {
+          state.stagedCardInstanceId = null;
+        }
         render();
       }
     });
@@ -853,6 +1040,7 @@ async function postAction(path, payload = {}) {
   });
   state.selectedEventIndex = null;
   state.stagedCardInstanceId = null;
+  state.stagedSupportInstanceId = null;
   state.draggingCardInstanceId = null;
   state.selectedCardInstanceId = null;
   state.isMenuOpen = false;
@@ -901,6 +1089,10 @@ function bindControls() {
       }
       if (state.selectedCardInstanceId !== null) {
         state.selectedCardInstanceId = null;
+        changed = true;
+      }
+      if (state.stagedSupportInstanceId !== null) {
+        state.stagedSupportInstanceId = null;
         changed = true;
       }
       if (changed) {

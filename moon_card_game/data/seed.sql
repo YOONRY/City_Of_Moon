@@ -1,16 +1,28 @@
-INSERT OR REPLACE INTO cards (id, name, category, description, power, max_durability, rarity) VALUES
-    ('street_map', '하층 지도 조각', 'info', '하층 구역의 골목과 비밀 통로가 겹겹이 표시된 오래된 지도 조각.', 1, 2, 'common'),
-    ('silver_tongue', '교섭가 유나', 'person', '도시의 이해관계를 읽고 갈등을 말로 풀어내는 해결사.', 2, 3, 'common'),
-    ('moon_prayer', '사당 해석사 미라', 'person', '사당 기록과 의식을 읽어 사건의 배경을 정리하는 조력자.', 2, 3, 'common'),
-    ('back_alley_pass', '뒷골목 연락원 타오', 'person', '뒷골목 인맥과 잠입 실력으로 해결사의 발이 되어 주는 현장 인력.', 2, 3, 'common'),
-    ('clockwork_drone', '태엽 정비사 렌', 'person', '장치와 철로를 다루는 수리 담당 해결사.', 2, 3, 'common'),
-    ('field_rations', '야전 보급 가방', 'equipment', '장기 의뢰를 버티게 해 주는 응급 보급과 간이 공구 묶음.', 1, 3, 'common'),
-    ('heirloom_blade', '가문의 검', 'equipment', '위험한 의뢰에 투입되는 해결사에게 쥐여 주는 오래된 호신검.', 2, 4, 'uncommon'),
-    ('healer_kit', '현장 처치 키트', 'equipment', '부상자 응급 처치와 동행자 보호에 특화된 현장용 장비.', 1, 4, 'uncommon'),
-    ('oracle_lens', '월광 기록 렌즈', 'info', '감춰진 흔적과 의식의 잔향을 읽어내는 조사용 렌즈 기록물.', 1, 2, 'uncommon'),
-    ('merchant_seal', '상단 출입 인가서', 'info', '상류 구역과 상단 행사장에 드나들기 위한 정식 허가 문서.', 1, 2, 'uncommon'),
-    ('rail_spike', '철로 고정구', 'equipment', '불안정한 철로와 문을 임시로 고정할 수 있는 개조 장비.', 1, 4, 'uncommon'),
-    ('mask_of_mist', '안개의 가면', 'equipment', '얼굴과 기척을 흐려 잠입 임무의 성공률을 높이는 보조 장비.', 2, 5, 'rare');
+INSERT OR REPLACE INTO cards (
+    id,
+    name,
+    category,
+    info_kind,
+    description,
+    strength,
+    agility,
+    intelligence,
+    charm,
+    max_durability,
+    rarity
+) VALUES
+    ('street_map', '하층 지도 조각', 'info', 'general', '하층 구역의 골목과 비밀 통로가 겹겹이 표시된 오래된 지도 조각.', 0, 1, 3, 0, 2, 'common'),
+    ('silver_tongue', '교섭가 유나', 'person', '', '도시의 이해관계를 읽고 갈등을 말로 풀어내는 해결사.', 0, 0, 1, 3, 3, 'common'),
+    ('moon_prayer', '사당 해석사 미라', 'person', '', '사당 기록과 의식을 읽어 사건의 배경을 정리하는 조력자.', 0, 0, 2, 2, 3, 'common'),
+    ('back_alley_pass', '뒷골목 연락원 타오', 'person', '', '뒷골목 인맥과 잠입 실력으로 해결사의 발이 되어 주는 현장 인력.', 0, 3, 1, 0, 3, 'common'),
+    ('clockwork_drone', '태엽 정비사 렌', 'person', '', '장치와 철로를 다루는 수리 담당 해결사.', 1, 0, 2, 0, 3, 'common'),
+    ('field_rations', '야전 보급 가방', 'equipment', '', '장기 의뢰를 버티게 해 주는 응급 보급과 간이 공구 묶음.', 1, 1, 0, 0, 3, 'common'),
+    ('heirloom_blade', '가문의 검', 'equipment', '', '위험한 의뢰에 투입되는 해결사에게 쥐여 주는 오래된 호신검.', 2, 1, 0, 0, 4, 'uncommon'),
+    ('healer_kit', '현장 처치 키트', 'equipment', '', '부상자 응급 처치와 동행자 보호에 특화된 현장용 장비.', 0, 0, 1, 1, 4, 'uncommon'),
+    ('oracle_lens', '월광 기록 렌즈', 'info', 'general', '감춰진 흔적과 의식의 잔향을 읽어내는 조사용 렌즈 기록물.', 0, 0, 3, 1, 2, 'uncommon'),
+    ('merchant_seal', '상단 출입 인가서', 'info', 'exclusive', '상류 구역과 상단 행사장에 드나들기 위한 정식 허가 문서.', 0, 0, 1, 4, 2, 'uncommon'),
+    ('rail_spike', '철로 고정구', 'equipment', '', '불안정한 철로와 문을 임시로 고정할 수 있는 개조 장비.', 1, 0, 1, 0, 4, 'uncommon'),
+    ('mask_of_mist', '안개의 가면', 'equipment', '', '얼굴과 기척을 흐려 잠입 임무의 성공률을 높이는 보조 장비.', 0, 2, 0, 1, 5, 'rare');
 
 INSERT OR REPLACE INTO card_tags (card_id, sort_order, tag) VALUES
     ('street_map', 1, 'route'),
@@ -38,13 +50,37 @@ INSERT OR REPLACE INTO card_tags (card_id, sort_order, tag) VALUES
     ('mask_of_mist', 1, 'covert'),
     ('mask_of_mist', 2, 'escort');
 
-INSERT OR REPLACE INTO events (id, sort_order, title, description, success_delta, failure_delta, success_text, failure_text) VALUES
-    ('market_riot', 1, '시장 중재 의뢰', '남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.', 1, -1, '말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.', '중재가 늦어지며 시장 불안이 도시 전체로 번졌다.'),
-    ('broken_rail', 2, '철로 긴급 수리', '외곽과 도심을 잇는 달 철로가 파손되어 물류와 인원이 발이 묶였다.', 1, -1, '철로를 임시 복구해 도시의 흐름을 다시 돌려놓았다.', '철로 복구가 지연되며 시민들의 불만이 커졌다.'),
-    ('masked_ball', 3, '가면무도회 잠입', '상류층 무도회에서 사라진 장부를 찾아 달라는 비밀 의뢰가 도착했다.', 1, -1, '행사장 안쪽 기록실에 잠입해 필요한 장부를 확보했다.', '초대 절차에서 막혀 단서 없이 물러날 수밖에 없었다.'),
-    ('eclipse_shrine', 4, '월식 사당 이상 징후', '월식 직후 사당 기록 장치가 멈추고 담당자들이 불길한 소음을 들었다고 한다.', 1, -1, '사당 기록을 정리하고 현장을 안정시켜 추가 피해를 막았다.', '이상 징후를 해석하지 못해 사당 일대에 불안이 남았다.'),
-    ('smuggler_tunnel', 5, '밀수 터널 추적', '뒷골목 조직이 지하 통로로 금지 물자를 옮긴다는 제보가 들어왔다.', 1, -1, '숨은 경로를 짚어내 밀수선을 끊고 조직의 움직임을 묶어 냈다.', '통로를 놓치며 조직이 한발 앞서 달아났다.'),
-    ('icewind_crossing', 6, '빙풍 속 호송 의뢰', '눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.', 1, -1, '혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.', '준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다.');
+INSERT OR REPLACE INTO events (
+    id,
+    sort_order,
+    title,
+    description,
+    difficulty,
+    success_delta,
+    failure_delta,
+    success_text,
+    failure_text
+) VALUES
+    ('market_riot', 1, '시장 중재 의뢰', '남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.', 4, 1, -1, '말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.', '중재가 늦어지며 시장 불안이 도시 전체로 번졌다.'),
+    ('broken_rail', 2, '철로 긴급 수리', '외곽과 도심을 잇는 달 철로가 파손되어 물류와 인원이 발이 묶였다.', 4, 1, -1, '철로를 임시 복구해 도시의 흐름을 다시 돌려놓았다.', '철로 복구가 지연되며 시민들의 불만이 커졌다.'),
+    ('masked_ball', 3, '가면무도회 잠입', '상류층 무도회에서 사라진 장부를 찾아 달라는 비밀 의뢰가 도착했다.', 4, 1, -1, '행사장 안쪽 기록실에 잠입해 필요한 장부를 확보했다.', '초대 절차에서 막혀 단서 없이 물러날 수밖에 없었다.'),
+    ('eclipse_shrine', 4, '월식 사당 이상 징후', '월식 직후 사당 기록 장치가 멈추고 담당자들이 불길한 소음을 들었다고 한다.', 4, 1, -1, '사당 기록을 정리하고 현장을 안정시켜 추가 피해를 막았다.', '이상 징후를 해석하지 못해 사당 일대에 불안이 남았다.'),
+    ('smuggler_tunnel', 5, '밀수 터널 추적', '뒷골목 조직이 지하 통로로 금지 물자를 옮긴다는 제보가 들어왔다.', 4, 1, -1, '숨은 경로를 짚어내 밀수선을 끊고 조직의 움직임을 묶어 냈다.', '통로를 놓치며 조직이 한발 앞서 달아났다.'),
+    ('icewind_crossing', 6, '빙풍 속 호송 의뢰', '눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.', 5, 1, -1, '혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.', '준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다.');
+
+INSERT OR REPLACE INTO event_check_stats (event_id, sort_order, stat_name) VALUES
+    ('market_riot', 1, 'charm'),
+    ('market_riot', 2, 'intelligence'),
+    ('broken_rail', 1, 'strength'),
+    ('broken_rail', 2, 'intelligence'),
+    ('masked_ball', 1, 'agility'),
+    ('masked_ball', 2, 'charm'),
+    ('eclipse_shrine', 1, 'intelligence'),
+    ('eclipse_shrine', 2, 'charm'),
+    ('smuggler_tunnel', 1, 'agility'),
+    ('smuggler_tunnel', 2, 'intelligence'),
+    ('icewind_crossing', 1, 'strength'),
+    ('icewind_crossing', 2, 'charm');
 
 INSERT OR REPLACE INTO event_required_tags (event_id, sort_order, tag) VALUES
     ('market_riot', 1, 'negotiation'),
@@ -67,8 +103,7 @@ INSERT OR REPLACE INTO event_required_tags (event_id, sort_order, tag) VALUES
     ('icewind_crossing', 3, 'fixer');
 
 INSERT OR REPLACE INTO event_required_cards (event_id, sort_order, card_id) VALUES
-    ('masked_ball', 1, 'merchant_seal'),
-    ('smuggler_tunnel', 1, 'street_map');
+    ('masked_ball', 1, 'merchant_seal');
 
 INSERT OR REPLACE INTO event_bonus_tags (event_id, sort_order, tag) VALUES
     ('market_riot', 1, 'permit'),

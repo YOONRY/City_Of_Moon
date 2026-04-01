@@ -826,15 +826,15 @@ select {
 }
 
 .card-mini-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: center;
+  display: grid;
+  gap: 2px;
+  align-items: start;
 }
 
 .card-mini-meta {
   font-size: 0.58rem;
   color: rgba(26, 17, 13, 0.74);
+  line-height: 1.25;
 }
 
 .availability-note {
