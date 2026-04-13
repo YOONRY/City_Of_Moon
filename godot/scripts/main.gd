@@ -1,6 +1,7 @@
 extends Control
 
 const ContentLoaderRef = preload("res://scripts/content_loader.gd")
+const SessionRef = preload("res://scripts/game_session.gd")
 const EVENT_POSITIONS := [
 	Vector2(0.15, 0.70),
 	Vector2(0.31, 0.36),
@@ -57,7 +58,10 @@ const CATEGORY_ACCENTS := {
 @onready var title_label: Label = $RootMargin/Frame/TopBar/TopMargin/TopRow/TitleBlock/TitleLabel
 @onready var subtitle_label: Label = $RootMargin/Frame/TopBar/TopMargin/TopRow/TitleBlock/SubtitleLabel
 @onready var status_label: Label = $RootMargin/Frame/TopBar/TopMargin/TopRow/StatusLabel
-@onready var refresh_button: Button = $RootMargin/Frame/TopBar/TopMargin/TopRow/RefreshButton
+@onready var new_button: Button = $RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons/NewButton
+@onready var load_button: Button = $RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons/LoadButton
+@onready var save_button: Button = $RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons/SaveButton
+@onready var refresh_button: Button = $RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons/RefreshButton
 @onready var map_panel: PanelContainer = $RootMargin/Frame/Body/MapPanel
 @onready var map_header: Label = $RootMargin/Frame/Body/MapPanel/MapMargin/MapStack/MapHeader
 @onready var map_subheader: Label = $RootMargin/Frame/Body/MapPanel/MapMargin/MapStack/MapSubheader
@@ -71,6 +75,17 @@ const CATEGORY_ACCENTS := {
 @onready var detail_reward: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/DetailReward
 @onready var tag_flow: FlowContainer = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/TagFlow
 @onready var slot_flow: FlowContainer = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/SlotFlow
+@onready var selection_eyebrow: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/SelectionEyebrow
+@onready var primary_slot_label: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/PrimarySlotLabel
+@onready var support_slot_label: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/SupportSlotLabel
+@onready var assign_primary_button: Button = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/AssignButtons/AssignPrimaryButton
+@onready var assign_support_button: Button = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/AssignButtons/AssignSupportButton
+@onready var clear_slots_button: Button = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/AssignButtons/ClearSlotsButton
+@onready var commit_button: Button = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons/CommitButton
+@onready var skip_button: Button = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons/SkipButton
+@onready var tavern_button: Button = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons/TavernButton
+@onready var end_day_button: Button = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons/EndDayButton
+@onready var session_message: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/SessionMessage
 @onready var inspector_eyebrow: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/InspectorEyebrow
 @onready var inspector_title: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/InspectorTitle
 @onready var inspector_meta: Label = $RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/InspectorMeta
@@ -82,20 +97,42 @@ const CATEGORY_ACCENTS := {
 @onready var card_rail: HBoxContainer = $RootMargin/Frame/RailPanel/RailMargin/RailStack/RailScroll/CardRail
 
 var content: Dictionary = {}
+var session = null
+var view_state: Dictionary = {}
 var selected_event_index := -1
 var selected_card_instance_id := ""
+var selected_primary_instance_id := ""
+var selected_support_instance_id := ""
 var collection_lookup: Dictionary = {}
 
 
 func _ready() -> void:
 	_apply_theme()
-	refresh_button.pressed.connect(_reload_content)
+	session = SessionRef.new()
+	new_button.pressed.connect(_start_new_run)
+	load_button.pressed.connect(_load_run)
+	save_button.pressed.connect(_save_run)
+	refresh_button.pressed.connect(_reload_export)
+	assign_primary_button.pressed.connect(_assign_primary)
+	assign_support_button.pressed.connect(_assign_support)
+	clear_slots_button.pressed.connect(_clear_slots)
+	commit_button.pressed.connect(_commit_event)
+	skip_button.pressed.connect(_skip_event)
+	tavern_button.pressed.connect(_visit_tavern)
+	end_day_button.pressed.connect(_end_day)
 	map_canvas.resized.connect(_render_map)
-	_reload_content()
+	_reload_export()
 
 
-func _reload_content() -> void:
+func _reload_export() -> void:
 	content = ContentLoaderRef.new().load_content()
+	session.setup(content)
+	_reset_selection(true)
+	_refresh_view()
+
+
+func _refresh_view() -> void:
+	view_state = session.get_view_state()
 	_rebuild_collection_lookup()
 	if _events().is_empty():
 		selected_event_index = -1
@@ -107,41 +144,37 @@ func _reload_content() -> void:
 		selected_card_instance_id = ""
 	elif not collection_lookup.has(selected_card_instance_id):
 		selected_card_instance_id = str(_collection()[0].get("instanceId", ""))
+	if selected_primary_instance_id != "" and not collection_lookup.has(selected_primary_instance_id):
+		selected_primary_instance_id = ""
+	if selected_support_instance_id != "" and not collection_lookup.has(selected_support_instance_id):
+		selected_support_instance_id = ""
 	_render()
 
 
-func _rebuild_collection_lookup() -> void:
-	collection_lookup.clear()
-	for card_entry in _collection():
-		collection_lookup[str(card_entry.get("instanceId", ""))] = card_entry
-
-
 func _render() -> void:
-	var preview := _preview_state()
 	status_label.text = "D%d  |  자금 %d  |  안정도 %d  |  세금 %d일 남음  |  의뢰 %d개  |  카드 %d장" % [
-		int(preview.get("day", 1)),
-		int(preview.get("money", 0)),
-		int(preview.get("stability", 0)),
-		int(preview.get("daysUntilTax", 0)),
+		int(view_state.get("day", 1)),
+		int(view_state.get("money", 0)),
+		int(view_state.get("stability", 0)),
+		int(view_state.get("daysUntilTax", 0)),
 		_events().size(),
 		_collection().size(),
 	]
+	session_message.text = str(view_state.get("message", ""))
+	load_button.disabled = not bool(view_state.get("hasSave", false))
+	tavern_button.disabled = not bool(view_state.get("canVisitTavern", false))
 	_render_map()
 	_render_detail()
 	_render_cards()
 	_render_inspector()
 
 
-func _preview_state() -> Dictionary:
-	return content.get("previewState", {})
-
-
 func _events() -> Array:
-	return _preview_state().get("events", [])
+	return view_state.get("events", [])
 
 
 func _collection() -> Array:
-	return _preview_state().get("collection", [])
+	return view_state.get("collection", [])
 
 
 func _selected_event() -> Dictionary:
@@ -157,9 +190,26 @@ func _selected_card() -> Dictionary:
 	return collection_lookup.get(selected_card_instance_id, {})
 
 
+func _selected_primary() -> Dictionary:
+	if selected_primary_instance_id == "":
+		return {}
+	return collection_lookup.get(selected_primary_instance_id, {})
+
+
+func _selected_support() -> Dictionary:
+	if selected_support_instance_id == "":
+		return {}
+	return collection_lookup.get(selected_support_instance_id, {})
+
+
+func _rebuild_collection_lookup() -> void:
+	collection_lookup.clear()
+	for card_entry in _collection():
+		collection_lookup[str(card_entry.get("instanceId", ""))] = card_entry
+
+
 func _render_map() -> void:
 	_clear_children(map_canvas)
-
 	var events := _events()
 	if events.is_empty():
 		var empty_label := Label.new()
@@ -168,7 +218,6 @@ func _render_map() -> void:
 		empty_label.add_theme_color_override("font_color", INK)
 		map_canvas.add_child(empty_label)
 		return
-
 	var canvas_size := map_canvas.size
 	if canvas_size.x <= 0.0 or canvas_size.y <= 0.0:
 		return
@@ -176,15 +225,18 @@ func _render_map() -> void:
 	for index in range(events.size()):
 		var event: Dictionary = events[index]
 		var event_button := Button.new()
-		event_button.text = str(event.get("title", "의뢰"))
-		event_button.custom_minimum_size = Vector2(180, 56)
+		var title := str(event.get("title", "의뢰"))
+		if bool(event.get("isCurrent", false)):
+			title = "현재 · %s" % title
+		event_button.text = title
+		event_button.custom_minimum_size = Vector2(190, 62)
 		event_button.focus_mode = Control.FOCUS_NONE
-		var position := EVENT_POSITIONS[index % EVENT_POSITIONS.size()]
+		var position: Vector2 = EVENT_POSITIONS[index % EVENT_POSITIONS.size()]
 		event_button.position = Vector2(
-			canvas_size.x * position.x - 90.0,
-			canvas_size.y * position.y - 28.0
+			canvas_size.x * position.x - 95.0,
+			canvas_size.y * position.y - 31.0
 		)
-		_style_event_button(event_button, index == selected_event_index)
+		_style_event_button(event_button, index == selected_event_index, bool(event.get("isCurrent", false)))
 		event_button.pressed.connect(_select_event.bind(index))
 		map_canvas.add_child(event_button)
 
@@ -197,6 +249,13 @@ func _render_detail() -> void:
 		detail_check.text = ""
 		detail_requirement.text = ""
 		detail_reward.text = ""
+		primary_slot_label.text = "주역: 비어 있음"
+		support_slot_label.text = "지원: 비어 있음"
+		commit_button.disabled = true
+		skip_button.disabled = true
+		assign_primary_button.disabled = true
+		assign_support_button.disabled = true
+		clear_slots_button.disabled = true
 		_clear_children(tag_flow)
 		_clear_children(slot_flow)
 		return
@@ -207,7 +266,6 @@ func _render_detail() -> void:
 		_format_check_stats(event.get("checkStats", [])),
 		int(event.get("difficulty", 0)),
 	]
-
 	var requirement_parts: Array[String] = []
 	var required_cards: Array = event.get("requiredCardNames", [])
 	if not required_cards.is_empty():
@@ -215,11 +273,7 @@ func _render_detail() -> void:
 	var required_tags: Array = event.get("requiredTags", [])
 	if not required_tags.is_empty():
 		requirement_parts.append("요구 태그: %s" % ", ".join(_stringify_array(required_tags)))
-	detail_requirement.text = (
-		" / ".join(requirement_parts)
-		if not requirement_parts.is_empty()
-		else "특수 요구 조건 없음"
-	)
+	detail_requirement.text = " / ".join(requirement_parts) if not requirement_parts.is_empty() else "특수 요구 조건 없음"
 
 	var reward_parts: Array[String] = []
 	var payout := int(event.get("payout", 0))
@@ -228,11 +282,7 @@ func _render_detail() -> void:
 	var reward_names: Array = event.get("rewardNames", [])
 	if not reward_names.is_empty():
 		reward_parts.append(", ".join(_stringify_array(reward_names)))
-	detail_reward.text = (
-		"보상: %s" % " / ".join(reward_parts)
-		if not reward_parts.is_empty()
-		else "보상: 없음"
-	)
+	detail_reward.text = "보상: %s" % " / ".join(reward_parts) if not reward_parts.is_empty() else "보상: 없음"
 
 	_clear_children(tag_flow)
 	for required_tag in event.get("requiredTags", []):
@@ -250,10 +300,18 @@ func _render_detail() -> void:
 	slot_flow.add_child(_build_chip("소요 %d일" % int(event.get("timeCost", 1)), Color("d39b61"), false))
 	slot_flow.add_child(_build_chip("마감 D%d" % int(event.get("deadlineDay", 0)), Color("be7f74"), false))
 
+	primary_slot_label.text = "주역: %s" % _slot_name(_selected_primary(), "비어 있음")
+	support_slot_label.text = "지원: %s" % _slot_name(_selected_support(), "비어 있음")
+
+	assign_primary_button.disabled = not _can_assign_selected_as_primary()
+	assign_support_button.disabled = not _can_assign_selected_as_support()
+	clear_slots_button.disabled = selected_primary_instance_id == "" and selected_support_instance_id == ""
+	skip_button.disabled = not bool(event.get("isCurrent", false))
+	commit_button.disabled = not _can_commit_current_event()
+
 
 func _render_cards() -> void:
 	_clear_children(card_rail)
-
 	var cards := _collection()
 	rail_header.text = "보유 카드 %d장" % cards.size()
 	if cards.is_empty():
@@ -262,7 +320,6 @@ func _render_cards() -> void:
 		empty_label.add_theme_color_override("font_color", INK)
 		card_rail.add_child(empty_label)
 		return
-
 	for card_entry in cards:
 		card_rail.add_child(_build_card_tile(card_entry))
 
@@ -278,16 +335,17 @@ func _render_inspector() -> void:
 		return
 
 	inspector_title.text = str(card.get("name", "카드"))
-
 	var meta_parts: Array[String] = [_card_type_text(card)]
 	if bool(card.get("isCommitted", false)):
 		meta_parts.append("임무 중 %d턴" % int(card.get("busyTurnsRemaining", 0)))
 	elif bool(card.get("isUsable", false)):
 		meta_parts.append("배치 가능")
-
+	if str(card.get("instanceId", "")) == selected_primary_instance_id:
+		meta_parts.append("주역 슬롯")
+	if str(card.get("instanceId", "")) == selected_support_instance_id:
+		meta_parts.append("지원 슬롯")
 	if str(card.get("category", "")) == "equipment" and str(card.get("equippedToName", "")) != "":
 		meta_parts.append("장착 대상 %s" % str(card.get("equippedToName", "")))
-
 	inspector_meta.text = " | ".join(meta_parts)
 	inspector_stats.text = _format_card_stats(card)
 	inspector_description.text = str(card.get("description", ""))
@@ -299,61 +357,24 @@ func _render_inspector() -> void:
 		for equipment_entry in card.get("attachedEquipment", []):
 			attached_by_slot[str(equipment_entry.get("slot", ""))] = equipment_entry
 		for slot_name in ["weapon", "armor", "accessory"]:
-			var slot_label := EQUIPMENT_SLOT_LABELS.get(slot_name, slot_name)
+			var slot_label: String = str(EQUIPMENT_SLOT_LABELS.get(slot_name, slot_name))
 			if attached_by_slot.has(slot_name):
 				var equipment_entry: Dictionary = attached_by_slot[slot_name]
-				equipment_flow.add_child(
-					_build_chip(
-						"%s: %s" % [slot_label, str(equipment_entry.get("name", ""))],
-						Color("7ea6d8"),
-						true
-					)
-				)
+				equipment_flow.add_child(_build_chip("%s: %s" % [slot_label, str(equipment_entry.get("name", ""))], Color("7ea6d8"), true))
 			else:
-				equipment_flow.add_child(
-					_build_chip(
-						"%s: 비어 있음" % slot_label,
-						Color("5b6d82"),
-						false
-					)
-				)
+				equipment_flow.add_child(_build_chip("%s: 비어 있음" % slot_label, Color("5b6d82"), false))
 		var equipment_bonus: Dictionary = card.get("equipmentBonus", {})
 		if _sum_stats(equipment_bonus) > 0:
-			equipment_flow.add_child(
-				_build_chip(
-					"장비 보정 %s" % _format_stats_from_dict(equipment_bonus),
-					GOLD,
-					true
-				)
-			)
+			equipment_flow.add_child(_build_chip("장비 보정 %s" % _format_stats_from_dict(equipment_bonus), GOLD, true))
 	elif category == "equipment":
 		var slot_name := str(card.get("equipmentSlot", ""))
-		equipment_flow.add_child(
-			_build_chip(
-				"슬롯: %s" % EQUIPMENT_SLOT_LABELS.get(slot_name, slot_name),
-				Color("7ea6d8"),
-				true
-			)
-		)
+		equipment_flow.add_child(_build_chip("슬롯: %s" % EQUIPMENT_SLOT_LABELS.get(slot_name, slot_name), Color("7ea6d8"), true))
 		if str(card.get("equippedToName", "")) != "":
-			equipment_flow.add_child(
-				_build_chip(
-					"착용자: %s" % str(card.get("equippedToName", "")),
-					GOLD,
-					true
-				)
-			)
+			equipment_flow.add_child(_build_chip("착용자: %s" % str(card.get("equippedToName", "")), GOLD, true))
 	else:
 		var info_kind := str(card.get("infoKind", ""))
 		if info_kind != "":
-			equipment_flow.add_child(
-				_build_chip(
-					INFO_KIND_LABELS.get(info_kind, info_kind),
-					Color("8c7bc0"),
-					true
-				)
-			)
-
+			equipment_flow.add_child(_build_chip(INFO_KIND_LABELS.get(info_kind, info_kind), Color("8c7bc0"), true))
 	for tag_name in card.get("tags", []):
 		equipment_flow.add_child(_build_chip("#%s" % str(tag_name), Color("6c88a8"), false))
 
@@ -361,7 +382,7 @@ func _render_inspector() -> void:
 func _build_card_tile(card_entry: Dictionary) -> Control:
 	var button := Button.new()
 	button.text = ""
-	button.custom_minimum_size = Vector2(210, 190)
+	button.custom_minimum_size = Vector2(220, 196)
 	button.focus_mode = Control.FOCUS_NONE
 	var accent := _accent_for_card(card_entry)
 	var is_selected := str(card_entry.get("instanceId", "")) == selected_card_instance_id
@@ -401,10 +422,7 @@ func _build_card_tile(card_entry: Dictionary) -> Control:
 		var status_label_local := Label.new()
 		status_label_local.text = status_line
 		status_label_local.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		status_label_local.add_theme_color_override(
-			"font_color",
-			Color("d7a07a") if bool(card_entry.get("isCommitted", false)) else MUTED
-		)
+		status_label_local.add_theme_color_override("font_color", Color("d7a07a") if bool(card_entry.get("isCommitted", false)) else MUTED)
 		stack.add_child(status_label_local)
 
 	var stats_label := Label.new()
@@ -422,9 +440,134 @@ func _build_card_tile(card_entry: Dictionary) -> Control:
 	return button
 
 
+func _select_event(index: int) -> void:
+	selected_event_index = index
+	_render()
+
+
+func _select_card(instance_id: String) -> void:
+	selected_card_instance_id = instance_id
+	_render()
+
+
+func _assign_primary() -> void:
+	if _can_assign_selected_as_primary():
+		selected_primary_instance_id = selected_card_instance_id
+		if selected_support_instance_id == selected_primary_instance_id:
+			selected_support_instance_id = ""
+		_render()
+
+
+func _assign_support() -> void:
+	if _can_assign_selected_as_support():
+		selected_support_instance_id = selected_card_instance_id
+		if selected_primary_instance_id == selected_support_instance_id:
+			selected_primary_instance_id = ""
+		_render()
+
+
+func _clear_slots() -> void:
+	selected_primary_instance_id = ""
+	selected_support_instance_id = ""
+	_render()
+
+
+func _commit_event() -> void:
+	if not _can_commit_current_event():
+		return
+	session.play_current_event(selected_primary_instance_id, selected_support_instance_id)
+	_reset_selection(false)
+	_refresh_view()
+
+
+func _skip_event() -> void:
+	session.skip_current_event()
+	_reset_selection(false)
+	_refresh_view()
+
+
+func _visit_tavern() -> void:
+	session.visit_tavern()
+	_refresh_view()
+
+
+func _end_day() -> void:
+	session.end_day()
+	_reset_selection(false)
+	_refresh_view()
+
+
+func _save_run() -> void:
+	session.save_to_disk()
+	_refresh_view()
+
+
+func _load_run() -> void:
+	if session.load_from_disk():
+		_reset_selection(true)
+	_refresh_view()
+
+
+func _start_new_run() -> void:
+	session.new_run()
+	_reset_selection(true)
+	_refresh_view()
+
+
+func _reset_selection(reset_card: bool) -> void:
+	selected_primary_instance_id = ""
+	selected_support_instance_id = ""
+	selected_event_index = 0
+	if reset_card:
+		selected_card_instance_id = ""
+
+
+func _can_assign_selected_as_primary() -> bool:
+	var event := _selected_event()
+	var card := _selected_card()
+	if event.is_empty() or card.is_empty():
+		return false
+	if not bool(event.get("isCurrent", false)):
+		return false
+	return str(card.get("category", "")) == "person" and bool(card.get("isUsable", false))
+
+
+func _can_assign_selected_as_support() -> bool:
+	var event := _selected_event()
+	var card := _selected_card()
+	if event.is_empty() or card.is_empty():
+		return false
+	if not bool(event.get("isCurrent", false)):
+		return false
+	if int(event.get("infoSlots", 0)) <= 0:
+		return false
+	return (
+		str(card.get("category", "")) == "info"
+		and str(card.get("infoKind", "")) == "general"
+		and bool(card.get("isUsable", false))
+	)
+
+
+func _can_commit_current_event() -> bool:
+	var event := _selected_event()
+	if event.is_empty() or not bool(event.get("isCurrent", false)):
+		return false
+	if selected_primary_instance_id == "":
+		return false
+	if int(event.get("infoSlots", 0)) > 0 and selected_support_instance_id == "":
+		return false
+	return true
+
+
+func _slot_name(card: Dictionary, empty_text: String) -> String:
+	if card.is_empty():
+		return empty_text
+	return str(card.get("name", empty_text))
+
+
 func _card_type_text(card: Dictionary) -> String:
 	var category := str(card.get("category", ""))
-	var label := CATEGORY_LABELS.get(category, category)
+	var label: String = str(CATEGORY_LABELS.get(category, category))
 	if category == "info":
 		var info_kind := str(card.get("infoKind", ""))
 		if INFO_KIND_LABELS.has(info_kind):
@@ -437,6 +580,10 @@ func _card_type_text(card: Dictionary) -> String:
 
 
 func _card_status_text(card: Dictionary) -> String:
+	if str(card.get("instanceId", "")) == selected_primary_instance_id:
+		return "주역 슬롯에 지정됨"
+	if str(card.get("instanceId", "")) == selected_support_instance_id:
+		return "지원 슬롯에 지정됨"
 	if bool(card.get("isCommitted", false)):
 		return "임무 중 · %d턴 남음" % int(card.get("busyTurnsRemaining", 0))
 	if str(card.get("category", "")) == "equipment" and str(card.get("equippedToName", "")) != "":
@@ -492,34 +639,20 @@ func _sum_stats(stats: Dictionary) -> int:
 	return total
 
 
-func _select_event(index: int) -> void:
-	selected_event_index = index
-	_render()
-
-
-func _select_card(instance_id: String) -> void:
-	selected_card_instance_id = instance_id
-	_render_inspector()
-	_render_cards()
-
-
 func _build_chip(text: String, border_color: Color, emphasize: bool) -> Control:
 	var chip_panel := PanelContainer.new()
 	chip_panel.add_theme_stylebox_override("panel", _chip_style(border_color))
-
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
 	margin.add_theme_constant_override("margin_top", 6)
 	margin.add_theme_constant_override("margin_right", 10)
 	margin.add_theme_constant_override("margin_bottom", 6)
 	chip_panel.add_child(margin)
-
 	var label := Label.new()
 	label.text = text
 	label.add_theme_color_override("font_color", INK if emphasize else GOLD_SOFT)
 	label.add_theme_font_size_override("font_size", 14)
 	margin.add_child(label)
-
 	return chip_panel
 
 
@@ -538,6 +671,10 @@ func _apply_theme() -> void:
 	detail_check.add_theme_color_override("font_color", GOLD_SOFT)
 	detail_requirement.add_theme_color_override("font_color", MUTED)
 	detail_reward.add_theme_color_override("font_color", MUTED)
+	selection_eyebrow.add_theme_color_override("font_color", GOLD_SOFT)
+	primary_slot_label.add_theme_color_override("font_color", INK)
+	support_slot_label.add_theme_color_override("font_color", INK)
+	session_message.add_theme_color_override("font_color", GOLD_SOFT)
 	inspector_eyebrow.add_theme_color_override("font_color", GOLD_SOFT)
 	inspector_title.add_theme_color_override("font_color", INK)
 	inspector_title.add_theme_font_size_override("font_size", 22)
@@ -546,25 +683,29 @@ func _apply_theme() -> void:
 	inspector_description.add_theme_color_override("font_color", MUTED)
 	rail_header.add_theme_color_override("font_color", GOLD_SOFT)
 	rail_header.add_theme_font_size_override("font_size", 22)
-
 	top_bar.add_theme_stylebox_override("panel", _panel_style(NAVY_PANEL, GOLD))
 	map_panel.add_theme_stylebox_override("panel", _panel_style(NAVY_PANEL, GOLD))
 	detail_panel.add_theme_stylebox_override("panel", _panel_style(NAVY_PANEL, GOLD))
 	rail_panel.add_theme_stylebox_override("panel", _panel_style(NAVY_PANEL, GOLD))
+	for button in [new_button, load_button, save_button, refresh_button, assign_primary_button, assign_support_button, clear_slots_button, commit_button, skip_button, tavern_button, end_day_button]:
+		button.add_theme_color_override("font_color", INK)
+		button.add_theme_stylebox_override("normal", _button_style(NAVY_PANEL_ALT))
+		button.add_theme_stylebox_override("hover", _button_style(Color("18365b")))
+		button.add_theme_stylebox_override("pressed", _button_style(Color("254871")))
+		button.add_theme_stylebox_override("disabled", _button_style(Color("0b1624")))
 
-	refresh_button.add_theme_color_override("font_color", INK)
-	refresh_button.add_theme_stylebox_override("normal", _button_style(NAVY_PANEL_ALT))
-	refresh_button.add_theme_stylebox_override("hover", _button_style(Color("18365b")))
-	refresh_button.add_theme_stylebox_override("pressed", _button_style(Color("254871")))
 
-
-func _style_event_button(button: Button, is_selected: bool) -> void:
-	var background := Color("1d3c60") if is_selected else NAVY_PANEL_ALT
+func _style_event_button(button: Button, is_selected: bool, is_current: bool) -> void:
+	var background := NAVY_PANEL_ALT
+	if is_current:
+		background = Color("1d3c60")
+	if is_selected:
+		background = Color("315d8f")
 	button.add_theme_color_override("font_color", INK)
 	button.add_theme_color_override("font_hover_color", INK)
 	button.add_theme_stylebox_override("normal", _button_style(background))
-	button.add_theme_stylebox_override("hover", _button_style(Color("24486f")))
-	button.add_theme_stylebox_override("pressed", _button_style(Color("315d8f")))
+	button.add_theme_stylebox_override("hover", _button_style(Color("3d6b9f")))
+	button.add_theme_stylebox_override("pressed", _button_style(Color("4d7bb1")))
 
 
 func _panel_style(background: Color, border: Color) -> StyleBoxFlat:

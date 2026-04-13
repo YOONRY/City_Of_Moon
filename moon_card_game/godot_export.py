@@ -5,7 +5,14 @@ from pathlib import Path
 import json
 
 from .content import build_card_catalog, build_starter_collection, build_story_events
-from .game import GameState, create_default_game
+from .game import (
+    INCIDENT_CHANCE,
+    TAVERN_VISIT_COST,
+    WEEKLY_TAX_AMOUNT,
+    WEEKLY_TAX_STABILITY_PENALTY,
+    GameState,
+    create_default_game,
+)
 from .models import CardCategory, CardDefinition, CardInstance, Event, STAT_FIELDS
 
 DEFAULT_GODOT_EXPORT_PATH = (
@@ -160,6 +167,12 @@ def _preview_state_payload(game: GameState) -> dict[str, object]:
         "uniqueCards": game.unique_cards_owned(),
         "totalInstances": game.total_cards_owned(),
         "readyPeople": game.ready_person_count(),
+        "specialChainProgress": game.special_chain_progress,
+        "specialChainFailed": game.special_chain_failed,
+        "offerSequence": game.offer_sequence,
+        "tavernVisitsToday": game.tavern_visits_today,
+        "isWon": game.is_won(),
+        "isLost": game.is_lost(),
         "handOrder": list(game.hand),
         "collection": collection,
         "events": [_event_payload(event, game.catalog) for event in game.events],
@@ -176,6 +189,12 @@ def build_godot_content_bundle(
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "schemaVersion": 2,
+        "rules": {
+            "weeklyTaxAmount": WEEKLY_TAX_AMOUNT,
+            "weeklyTaxStabilityPenalty": WEEKLY_TAX_STABILITY_PENALTY,
+            "incidentChance": INCIDENT_CHANCE,
+            "tavernVisitCost": TAVERN_VISIT_COST,
+        },
         "statOrder": list(STAT_FIELDS),
         "cards": [
             _card_payload(card)

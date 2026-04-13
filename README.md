@@ -18,58 +18,54 @@
 
 ## 실행
 
+현재 권장 경로는 Godot 프로젝트입니다.
+
+루트에서 export를 갱신합니다.
+
 ```bash
 python main.py
 ```
 
-브라우저 기반 UI를 열려면:
+특정 DB를 기준으로 export하려면:
 
 ```bash
-python main.py --ui web
+python main.py --db-path .\moon_card_game\data\city_of_moon.sqlite3
 ```
 
-처음 실행하면 스키마와 시드 데이터를 바탕으로 SQLite 데이터베이스를 자동 생성합니다.
+export 없이 DB만 초기화하려면:
 
 ```bash
-python main.py --db-path .\data\dev.sqlite3
+python main.py --skip-export
 ```
 
-저장 슬롯에서 이어서 시작하려면:
-
-```bash
-python main.py --db-path .\data\dev.sqlite3 --load-save
-```
-
-웹 UI에서도 같은 옵션을 사용할 수 있습니다.
-
-```bash
-python main.py --ui web --db-path .\data\dev.sqlite3 --load-save --port 8765
-```
+그 다음 Godot 4에서 `godot` 폴더를 프로젝트로 열고 메인 씬을 실행하면 됩니다.  
+자세한 흐름은 `godot/README.md`에 정리되어 있습니다.
 
 ## 현재 구조
 
 - 카드 원본 데이터와 사건 데이터는 SQLite에 저장됩니다.
 - 파이썬은 이를 `CardDefinition`, `CardInstance`, `Event` 객체로 읽어 게임을 구성합니다.
-- `인물`과 `범용 정보` 카드는 손패/드로우 더미에 들어가는 적극 카드입니다.
-- `장비` 카드는 손패에 섞이지 않고 인물 카드에 장착되어 대응력을 보정합니다.
-- `전용 정보`는 손패에 들어오지 않고, 컬렉션에 소지하고 있는지만 검사합니다.
+- `인물`과 `정보` 카드는 현재 보유 카드 전체를 기준으로 운용됩니다.
+- `장비` 카드는 인물 카드에 장착되어 대응력을 보정합니다.
+- `전용 정보`는 지원 슬롯이 아니라, 컬렉션에 소지하고 있는지만 검사합니다.
 - 사건 성공 여부는 `인물 카드`의 체크 스탯 합과, 함께 사용한 `범용 정보`의 보조 스탯을 더한 값이 목표치를 넘는지로 결정됩니다.
 - 저장 데이터에는 카드 인스턴스 상태, 장비 장착 상태, 남은 사건, 더미 순서, 안정도, RNG 상태가 포함됩니다.
+- Godot 쪽은 export된 시작 런 스냅샷을 바탕으로 의뢰 해결, 턴 종료, 술집 정보, 저장/불러오기를 직접 처리합니다.
 
 ## 파일 구성
 
-- `main.py`: 콘솔 루프와 웹 UI 서버를 시작하는 진입점
+- `main.py`: Godot용 SQLite 초기화와 JSON export를 실행하는 진입점
 - `moon_card_game/models.py`: 카드/사건 데이터 모델
 - `moon_card_game/game.py`: 카드 판정, 장비 장착, 덱/손패 흐름
 - `moon_card_game/database.py`: SQLite 초기화와 마이그레이션
 - `moon_card_game/content.py`: SQLite 데이터를 게임 객체로 로드
 - `moon_card_game/save_system.py`: 런 상태 저장/불러오기
-- `moon_card_game/web_ui.py`: 웹 UI용 로컬 HTTP 서버와 JSON API
-- `moon_card_game/web/`: HTML, CSS, JavaScript UI 자산
+- `moon_card_game/godot_export.py`: Godot용 JSON export 브리지
+- `godot/`: 현재 주 개발 대상인 Godot 프로젝트
 - `moon_card_game/data/schema.sql`: 데이터베이스 스키마
 - `moon_card_game/data/seed.sql`: 기본 카드/사건 시드 데이터
 - `tests/test_game.py`: 핵심 게임 로직 테스트
-- `tests/test_web_ui.py`: 웹 UI 직렬화 및 세션 테스트
+- `tests/test_godot_export.py`: Godot export 검증
 
 ## 다음 확장 아이디어
 

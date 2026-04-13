@@ -47,5 +47,8 @@ python tools/export_godot_content.py --db-path .\moon_card_game\data\city_of_moo
 - 보유 카드 전체 레일
 - 임무 중 카드 표시
 - 인물 카드 선택 시 장착 장비 확인
+- 주역/지원 카드 배치
+- 의뢰 해결, 의뢰 넘기기, 술집 정보, 턴 종료
+- `user://city_of_moon_save.json` 기준 저장/불러오기
 
 이 단계의 목표는 콘텐츠를 많이 넣는 것이 아니라, Godot 쪽 게임 틀을 먼저 안정적으로 옮기는 것입니다.

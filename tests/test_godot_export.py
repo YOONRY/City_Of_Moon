@@ -26,6 +26,7 @@ class GodotExportTests(unittest.TestCase):
             bundle["statOrder"],
             ["strength", "agility", "intelligence", "charm"],
         )
+        self.assertIn("rules", bundle)
         self.assertTrue(bundle["cards"])
         self.assertTrue(bundle["eventTemplates"])
         self.assertTrue(bundle["starterCollection"])
@@ -51,6 +52,9 @@ class GodotExportTests(unittest.TestCase):
         self.assertIn("attachedEquipment", preview_card)
         self.assertIn("equipmentBonus", preview_card)
         self.assertIn("events", bundle["previewState"])
+        self.assertIn("tavernVisitCost", bundle["rules"])
+        self.assertIn("weeklyTaxStabilityPenalty", bundle["rules"])
+        self.assertIn("specialChainProgress", bundle["previewState"])
 
     def test_export_writes_json_file_for_godot_project(self) -> None:
         output_path = Path(self.temp_dir.name) / "content.json"
@@ -72,6 +76,7 @@ class GodotExportTests(unittest.TestCase):
         self.assertTrue(
             any(card["isInHand"] for card in payload["previewState"]["collection"])
         )
+        self.assertIn("incidentChance", payload["rules"])
 
     def test_godot_project_scaffold_exists(self) -> None:
         workspace_root = Path(__file__).resolve().parents[1]
@@ -79,6 +84,7 @@ class GodotExportTests(unittest.TestCase):
         self.assertTrue((workspace_root / "godot" / "project.godot").exists())
         self.assertTrue((workspace_root / "godot" / "scenes" / "main.tscn").exists())
         self.assertTrue((workspace_root / "godot" / "scripts" / "main.gd").exists())
+        self.assertTrue((workspace_root / "godot" / "scripts" / "game_session.gd").exists())
         self.assertTrue((workspace_root / "godot" / "scripts" / "content_loader.gd").exists())
 
 

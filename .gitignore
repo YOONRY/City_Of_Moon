@@ -2,3 +2,5 @@ __pycache__/
 *.py[cod]
 moon_card_game/data/*.sqlite3
 godot/.godot/
+Godot_v4.6.1-stable_win64.exe/
+Godot_v4.6.1-stable_mono_win64/

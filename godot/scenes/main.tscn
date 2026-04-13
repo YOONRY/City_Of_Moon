@@ -69,7 +69,23 @@ size_flags_horizontal = 3
 horizontal_alignment = 2
 text = "Loading..."
 
-[node name="RefreshButton" type="Button" parent="RootMargin/Frame/TopBar/TopMargin/TopRow"]
+[node name="SessionButtons" type="HBoxContainer" parent="RootMargin/Frame/TopBar/TopMargin/TopRow"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NewButton" type="Button" parent="RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons"]
+layout_mode = 2
+text = "새 런"
+
+[node name="LoadButton" type="Button" parent="RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons"]
+layout_mode = 2
+text = "불러오기"
+
+[node name="SaveButton" type="Button" parent="RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons"]
+layout_mode = 2
+text = "저장"
+
+[node name="RefreshButton" type="Button" parent="RootMargin/Frame/TopBar/TopMargin/TopRow/SessionButtons"]
 layout_mode = 2
 text = "새로고침"
 
@@ -162,6 +178,61 @@ theme_override_constants/v_separation = 8
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
+
+[node name="SelectionEyebrow" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+text = "배치 슬롯"
+
+[node name="PrimarySlotLabel" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "주역: 비어 있음"
+
+[node name="SupportSlotLabel" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "지원: 비어 있음"
+
+[node name="AssignButtons" type="HBoxContainer" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AssignPrimaryButton" type="Button" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/AssignButtons"]
+layout_mode = 2
+text = "주역 지정"
+
+[node name="AssignSupportButton" type="Button" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/AssignButtons"]
+layout_mode = 2
+text = "지원 지정"
+
+[node name="ClearSlotsButton" type="Button" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/AssignButtons"]
+layout_mode = 2
+text = "슬롯 비우기"
+
+[node name="ActionButtons" type="HBoxContainer" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CommitButton" type="Button" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons"]
+layout_mode = 2
+text = "의뢰 해결"
+
+[node name="SkipButton" type="Button" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons"]
+layout_mode = 2
+text = "의뢰 넘기기"
+
+[node name="TavernButton" type="Button" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons"]
+layout_mode = 2
+text = "술집 정보"
+
+[node name="EndDayButton" type="Button" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack/ActionButtons"]
+layout_mode = 2
+text = "턴 종료"
+
+[node name="SessionMessage" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
 
 [node name="InspectorDivider" type="HSeparator" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
 layout_mode = 2

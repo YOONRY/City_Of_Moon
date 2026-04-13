@@ -10,7 +10,7 @@ func load_content(path: String = DEFAULT_CONTENT_PATH) -> Dictionary:
 		push_warning("Could not open content file: %s" % path)
 		return {}
 
-	var parsed := JSON.parse_string(file.get_as_text())
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
 	if typeof(parsed) != TYPE_DICTIONARY:
 		push_warning("Content file did not parse into a Dictionary: %s" % path)
 		return {}

@@ -1,6 +1,12 @@
 {
-  "generatedAt": "2026-04-13T02:23:04.051621+00:00",
+  "generatedAt": "2026-04-13T04:28:47.890366+00:00",
   "schemaVersion": 2,
+  "rules": {
+    "weeklyTaxAmount": 12,
+    "weeklyTaxStabilityPenalty": 2,
+    "incidentChance": 0.35,
+    "tavernVisitCost": 2
+  },
   "statOrder": [
     "strength",
     "agility",
@@ -1315,6 +1321,12 @@
     "uniqueCards": 6,
     "totalInstances": 6,
     "readyPeople": 4,
+    "specialChainProgress": 0,
+    "specialChainFailed": false,
+    "offerSequence": 4,
+    "tavernVisitsToday": 0,
+    "isWon": false,
+    "isLost": false,
     "handOrder": [
       "starter_silver_tongue_1",
       "starter_back_alley_pass_1",
