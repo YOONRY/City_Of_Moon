@@ -3,22 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>달의 도시</title>
+    <title>시티 오브 문</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="top-bar">
         <div class="brand-block">
-          <p class="eyebrow">달의 도시</p>
-          <h1>월광 지도</h1>
+          <p class="eyebrow">City of Moon</p>
+          <h1>해결사 지부</h1>
         </div>
         <div class="status-strip" id="statusStrip"></div>
+        <div class="top-actions">
+          <button class="chrome-button turn-end-button" id="endDayButton" type="button">턴 종료</button>
+        </div>
         <div class="gear-shell" id="gearShell">
           <div class="gear-drawer" id="gearDrawer" aria-hidden="true">
             <button class="menu-action" type="button" data-menu-action="save">저장</button>
             <button class="menu-action" type="button" data-menu-action="load">불러오기</button>
-            <button class="menu-action danger" type="button" data-menu-action="forfeit">포기하기</button>
+            <button class="menu-action danger" type="button" data-menu-action="forfeit">포기</button>
           </div>
           <button class="gear-button" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -31,7 +34,7 @@
       <main class="board-layout">
         <section class="map-panel">
           <div class="map-surface" id="mapSurface">
-            <div class="map-camera" id="mapCamera">
+            <div class="map-camera">
               <div class="map-grid"></div>
               <svg class="route-layer" id="routeLayer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
               <div class="event-map" id="eventMap"></div>

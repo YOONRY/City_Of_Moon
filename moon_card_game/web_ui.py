@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from .game import GameState, create_default_game
+from .game import GameState, TAVERN_VISIT_COST, create_default_game
 from .models import STAT_FIELDS, CardCategory
 from .save_system import DEFAULT_SAVE_SLOT, has_saved_game, load_game_state, save_game_state
 
@@ -27,18 +27,29 @@ def _serialize_card(game: GameState, instance_id: str) -> dict[str, Any]:
         equipped_to_name = target_instance.display_name(target_card)
 
     attached_equipment_names = []
+    attached_equipment = []
     if card.category == CardCategory.PERSON:
-        attached_equipment_names = [
-            equipment_instance.display_name(game.catalog[equipment_instance.card_id])
-            for equipment_instance in game.equipment_for(instance_id)
-        ]
+        for equipment_instance in game.equipment_for(instance_id):
+            equipment_card = game.catalog[equipment_instance.card_id]
+            equipment_name = equipment_instance.display_name(equipment_card)
+            attached_equipment_names.append(equipment_name)
+            attached_equipment.append(
+                {
+                    "instanceId": equipment_instance.instance_id,
+                    "name": equipment_name,
+                    "slot": equipment_card.equipment_slot,
+                    "stats": equipment_instance.effective_stats(equipment_card),
+                }
+            )
     effective_stats = game.effective_stats(instance_id)
+    busy_turns_remaining = max(card_instance.busy_until_day - game.day + 1, 0)
 
     return {
         "instanceId": card_instance.instance_id,
         "cardId": card.id,
         "name": card_instance.display_name(card),
         "category": card.category.value,
+        "equipmentSlot": card.equipment_slot,
         "infoKind": card.info_kind,
         "rarity": card.rarity,
         "tags": list(card.tags),
@@ -46,14 +57,16 @@ def _serialize_card(game: GameState, instance_id: str) -> dict[str, Any]:
         "powerBonus": card_instance.power_bonus,
         "baseStats": card.stats(),
         "stats": effective_stats,
-        "durability": card_instance.current_durability,
-        "maxDurability": card.max_durability,
-        "isUsable": card_instance.is_usable(),
+        "isUsable": game.is_card_available(instance_id),
+        "isCommitted": card_instance.busy_until_day >= game.day,
+        "busyUntilDay": card_instance.busy_until_day,
+        "busyTurnsRemaining": busy_turns_remaining,
         "isActiveCard": card.category == CardCategory.PERSON or card.is_general_info(),
         "displayCategory": CATEGORY_LABELS.get(card.category.value, card.category.value),
         "equippedToInstanceId": card_instance.equipped_to_instance_id,
         "equippedToName": equipped_to_name,
         "attachedEquipmentNames": attached_equipment_names,
+        "attachedEquipment": attached_equipment,
         "equipmentBonus": (
             game.equipment_bonus_for(instance_id)
             if card.category == CardCategory.PERSON
@@ -67,8 +80,11 @@ def _serialize_event(game: GameState, index: int, event) -> dict[str, Any]:
     required_card_names = [game.catalog[card_id].name for card_id in event.required_card_ids]
     return {
         "id": event.id,
+        "offerId": event.active_offer_id(),
         "title": event.title,
         "description": event.description,
+        "kind": event.kind.value,
+        "source": event.source,
         "checkStats": list(event.check_stats),
         "difficulty": event.difficulty,
         "requiredTags": list(event.required_tags),
@@ -76,6 +92,9 @@ def _serialize_event(game: GameState, index: int, event) -> dict[str, Any]:
         "requiredCardNames": required_card_names,
         "bonusTags": list(event.bonus_tags),
         "rewardNames": reward_names,
+        "timeCost": event.time_cost,
+        "payout": event.payout,
+        "deadlineDay": event.deadline_day,
         "isCurrent": index == 0,
     }
 
@@ -96,13 +115,21 @@ def serialize_game_state(
     return {
         "message": message,
         "saveSlot": save_slot,
+        "day": game.day,
+        "money": game.money,
+        "tavernCost": TAVERN_VISIT_COST,
+        "weeklyTaxAmount": game.weekly_tax_amount,
+        "daysUntilTax": game.days_until_tax(),
         "stability": game.stability,
         "completedEvents": game.completed_events,
         "uniqueCards": game.unique_cards_owned(),
         "totalInstances": game.total_cards_owned(),
+        "readyPeople": game.ready_person_count(),
+        "canContinueDay": game.has_operational_options(),
         "isWon": game.is_won(),
         "isLost": game.is_lost(),
-        "isOver": game.is_won() or game.is_lost() or game.current_event() is None,
+        "hasCurrentEvent": game.current_event() is not None,
+        "isOver": game.is_won() or game.is_lost(),
         "hand": [_serialize_card(game, instance_id) for instance_id in game.hand],
         "collection": collection,
         "events": [
@@ -123,11 +150,11 @@ class GameSession:
         self.save_slot = save_slot
         self.game = self._make_game(load_save=load_save)
         if load_save and has_saved_game(db_path=self.db_path, slot_name=self.save_slot):
-            self.message = f"'{self.save_slot}' 슬롯을 불러왔습니다."
+            self.message = f"Loaded save slot '{self.save_slot}'."
         elif load_save:
-            self.message = f"'{self.save_slot}' 슬롯 저장이 없어 새 게임을 시작했습니다."
+            self.message = f"No save found in '{self.save_slot}'. Started a new run."
         else:
-            self.message = "해결사 사무소로 새 의뢰가 도착했습니다. 적절한 카드로 사건을 처리하세요."
+            self.message = "A new fixer day begins. Choose a card and take a request."
 
     def _make_game(self, load_save: bool) -> GameState:
         if load_save:
@@ -145,58 +172,85 @@ class GameSession:
         support_hand_index: int | None = None,
     ) -> dict[str, Any]:
         if self.game.is_won() or self.game.is_lost():
-            self.message = "이번 진행은 끝났습니다. 새 게임을 시작하거나 저장을 불러오세요."
+            self.message = "This run has already ended. Start a new run or load a save."
             return self.state_payload()
         try:
             resolution = self.game.play_card(hand_index, support_hand_index=support_hand_index)
         except (IndexError, ValueError):
-            self.message = "지금은 그 카드를 사용할 수 없습니다."
+            self.message = "That card setup cannot be used right now."
             return self.state_payload()
 
         played_name = (
             resolution.card_instance.display_name(resolution.card)
             if resolution.card is not None and resolution.card_instance is not None
-            else "카드 없음"
+            else "No card"
         )
-        result_text = "성공" if resolution.success else "실패"
-        self.message = f"{played_name} 투입: {result_text}. {resolution.message}"
+        result_text = "Success" if resolution.success else "Failure"
+        self.message = f"{played_name}: {result_text}. {resolution.message}"
+        if resolution.money_delta:
+            self.message += f" Earned {resolution.money_delta} crowns."
         if resolution.reward_card is not None:
-            self.message += f" 새 카드 확보: {resolution.reward_card.name}."
+            self.message += f" Reward gained: {resolution.reward_card.name}."
+        if resolution.days_advanced:
+            self.message += f" Time moved forward by {resolution.days_advanced} day(s)."
         return self.state_payload()
 
     def skip_event(self) -> dict[str, Any]:
         if self.game.current_event() is None:
-            self.message = "넘길 수 있는 사건이 없습니다."
+            self.message = "There is no request to set aside."
             return self.state_payload()
         resolution = self.game.skip_event()
-        self.message = f"이번 의뢰를 흘려보냈습니다. {resolution.message}"
+        self.message = resolution.message
+        return self.state_payload()
+
+    def end_day(self) -> dict[str, Any]:
+        if self.game.is_won() or self.game.is_lost():
+            return self.state_payload()
+        self.game.end_day()
+        self.message = "The crew stands down and a new day begins."
+        return self.state_payload()
+
+    def visit_tavern(self) -> dict[str, Any]:
+        if self.game.is_won() or self.game.is_lost():
+            return self.state_payload()
+        if self.game.tavern_visits_today >= 1:
+            self.message = "You already worked the tavern for rumors today."
+            return self.state_payload()
+        if self.game.money < TAVERN_VISIT_COST:
+            self.message = f"You need {TAVERN_VISIT_COST} crowns to work the tavern."
+            return self.state_payload()
+        offer = self.game.visit_tavern()
+        if offer is None:
+            self.message = "You cannot pull another tavern rumor right now."
+        else:
+            self.message = f"A tavern rumor uncovered '{offer.title}' for {TAVERN_VISIT_COST} crowns."
         return self.state_payload()
 
     def save(self) -> dict[str, Any]:
         save_game_state(self.game, db_path=self.db_path, slot_name=self.save_slot)
-        self.message = f"현재 진행을 '{self.save_slot}' 슬롯에 저장했습니다."
+        self.message = f"Saved current progress to '{self.save_slot}'."
         return self.state_payload()
 
     def load(self) -> dict[str, Any]:
         saved_game = load_game_state(db_path=self.db_path, slot_name=self.save_slot)
         if saved_game is None:
-            self.message = f"'{self.save_slot}' 슬롯에 저장된 진행이 없습니다."
+            self.message = f"No saved run exists in '{self.save_slot}'."
             return self.state_payload()
         self.game = saved_game
-        self.message = f"'{self.save_slot}' 슬롯을 불러왔습니다."
+        self.message = f"Loaded save slot '{self.save_slot}'."
         return self.state_payload()
 
     def new_game(self) -> dict[str, Any]:
         self.game = create_default_game(db_path=self.db_path)
-        self.message = "새로운 의뢰 목록이 열렸습니다. 해결사를 다시 배치해 보세요."
+        self.message = "Started a fresh fixer run."
         return self.state_payload()
 
     def forfeit(self) -> dict[str, Any]:
         if self.game.is_won() or self.game.is_lost():
-            self.message = "이 진행은 이미 종료되었습니다."
+            self.message = "This run is already over."
             return self.state_payload()
         self.game.stability = 0
-        self.message = "이번 의뢰선을 포기했습니다. 도시의 신뢰가 크게 흔들렸습니다."
+        self.message = "You gave up the run. The city slips further out of reach."
         return self.state_payload()
 
 
@@ -270,6 +324,12 @@ def _build_handler(session: GameSession):
             if self.path == "/api/skip":
                 self._send_json(session.skip_event())
                 return
+            if self.path == "/api/end-day":
+                self._send_json(session.end_day())
+                return
+            if self.path == "/api/tavern":
+                self._send_json(session.visit_tavern())
+                return
             if self.path == "/api/save":
                 self._send_json(session.save())
                 return
@@ -299,8 +359,8 @@ def run_web_app(
 ) -> None:
     session = GameSession(db_path=db_path, save_slot=save_slot, load_save=load_save)
     server = ThreadingHTTPServer((host, port), _build_handler(session))
-    print(f"달의 도시 웹 UI 실행 중: http://{host}:{port}")
-    print("브라우저에서 주소를 열어 주세요. 종료하려면 Ctrl+C를 누르세요.")
+    print(f"City of Moon web UI is running at http://{host}:{port}")
+    print("Open the address in a browser. Press Ctrl+C to stop the local server.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

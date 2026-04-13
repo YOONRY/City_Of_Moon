@@ -2,6 +2,7 @@
 
 from .database import get_default_database_path, initialize_database
 from .game import GameState, create_default_game
+from .godot_export import DEFAULT_GODOT_EXPORT_PATH, export_godot_content
 from .models import CardCategory, CardDefinition, CardInstance
 from .save_system import (
     DEFAULT_SAVE_SLOT,
@@ -16,8 +17,10 @@ __all__ = [
     "CardDefinition",
     "CardInstance",
     "DEFAULT_SAVE_SLOT",
+    "DEFAULT_GODOT_EXPORT_PATH",
     "GameState",
     "create_default_game",
+    "export_godot_content",
     "get_default_database_path",
     "has_saved_game",
     "initialize_database",

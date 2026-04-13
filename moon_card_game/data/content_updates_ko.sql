@@ -310,3 +310,9 @@ INSERT OR REPLACE INTO starter_card_instances (
     ('starter_clockwork_drone_1', 4, 'clockwork_drone', 0, 3, '', ''),
     ('starter_street_map_1', 5, 'street_map', 0, 2, '', ''),
     ('starter_field_rations_1', 6, 'field_rations', 0, 3, '', 'starter_clockwork_drone_1');
+
+UPDATE cards SET equipment_slot = 'armor' WHERE id = 'field_rations';
+UPDATE cards SET equipment_slot = 'weapon' WHERE id = 'heirloom_blade';
+UPDATE cards SET equipment_slot = 'accessory' WHERE id = 'healer_kit';
+UPDATE cards SET equipment_slot = 'weapon' WHERE id = 'rail_spike';
+UPDATE cards SET equipment_slot = 'accessory' WHERE id = 'mask_of_mist';

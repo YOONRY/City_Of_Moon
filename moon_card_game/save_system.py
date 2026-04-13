@@ -7,7 +7,7 @@ from random import Random
 from .content import build_card_catalog, build_story_events
 from .database import connect_database, initialize_database
 from .game import GameState
-from .models import CardInstance
+from .models import CardInstance, Event
 
 DEFAULT_SAVE_SLOT = "main"
 
@@ -56,8 +56,42 @@ def save_game_state(
                     repr(game.rng.getstate()),
                 ),
             )
+            connection.execute(
+                """
+                INSERT INTO save_run_state (
+                    slot_name,
+                    day,
+                    actions_remaining,
+                    money,
+                    special_chain_progress,
+                    special_chain_failed,
+                    offer_sequence,
+                    tavern_visits_today
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(slot_name) DO UPDATE SET
+                    day = excluded.day,
+                    actions_remaining = excluded.actions_remaining,
+                    money = excluded.money,
+                    special_chain_progress = excluded.special_chain_progress,
+                    special_chain_failed = excluded.special_chain_failed,
+                    offer_sequence = excluded.offer_sequence,
+                    tavern_visits_today = excluded.tavern_visits_today
+                """,
+                (
+                    slot_name,
+                    game.day,
+                    0,
+                    game.money,
+                    game.special_chain_progress,
+                    int(game.special_chain_failed),
+                    game.offer_sequence,
+                    game.tavern_visits_today,
+                ),
+            )
             connection.execute("DELETE FROM save_piles WHERE slot_name = ?", (slot_name,))
             connection.execute("DELETE FROM save_events WHERE slot_name = ?", (slot_name,))
+            connection.execute("DELETE FROM save_event_offers WHERE slot_name = ?", (slot_name,))
             connection.execute(
                 "DELETE FROM save_card_instances WHERE slot_name = ?",
                 (slot_name,),
@@ -72,9 +106,10 @@ def save_game_state(
                     power_bonus,
                     current_durability,
                     nickname,
-                    equipped_to_instance_id
+                    equipped_to_instance_id,
+                    busy_until_day
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
                     (
@@ -85,6 +120,7 @@ def save_game_state(
                         card_instance.current_durability,
                         card_instance.nickname,
                         card_instance.equipped_to_instance_id,
+                        card_instance.busy_until_day,
                     )
                     for card_instance in sorted(
                         game.collection.values(),
@@ -94,11 +130,25 @@ def save_game_state(
             )
             connection.executemany(
                 """
-                INSERT INTO save_events (slot_name, sort_order, event_id)
-                VALUES (?, ?, ?)
+                INSERT INTO save_event_offers (
+                    slot_name,
+                    sort_order,
+                    offer_id,
+                    template_id,
+                    introduced_day,
+                    deadline_day
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 [
-                    (slot_name, index, event.id)
+                    (
+                        slot_name,
+                        index,
+                        event.active_offer_id(),
+                        event.base_template_id(),
+                        event.introduced_day,
+                        event.deadline_day,
+                    )
                     for index, event in enumerate(game.events, start=1)
                 ],
             )
@@ -132,6 +182,76 @@ def save_game_state(
             raise
 
 
+def _load_active_events(
+    connection,
+    slot_name: str,
+    event_map: dict[str, Event],
+) -> list[Event]:
+    offer_rows = connection.execute(
+        """
+        SELECT offer_id, template_id, introduced_day, deadline_day
+        FROM save_event_offers
+        WHERE slot_name = ?
+        ORDER BY sort_order
+        """,
+        (slot_name,),
+    ).fetchall()
+    if offer_rows:
+        active_events: list[Event] = []
+        for row in offer_rows:
+            template = event_map.get(row["template_id"])
+            if template is None:
+                raise ValueError(
+                    f"Saved event template '{row['template_id']}' is not defined."
+                )
+            active_events.append(
+                Event(
+                    id=template.id,
+                    title=template.title,
+                    description=template.description,
+                    check_stats=template.check_stats,
+                    difficulty=template.difficulty,
+                    required_tags=template.required_tags,
+                    required_card_ids=template.required_card_ids,
+                    bonus_tags=template.bonus_tags,
+                    reward_card_ids=template.reward_card_ids,
+                    success_delta=template.success_delta,
+                    failure_delta=template.failure_delta,
+                    success_text=template.success_text,
+                    failure_text=template.failure_text,
+                    kind=template.kind,
+                    source=template.source,
+                    time_cost=template.time_cost,
+                    payout=template.payout,
+                    deadline_days=template.deadline_days,
+                    template_id=template.base_template_id(),
+                    offer_id=row["offer_id"],
+                    introduced_day=row["introduced_day"],
+                    deadline_day=row["deadline_day"],
+                    storyline_id=template.storyline_id,
+                    chain_step=template.chain_step,
+                )
+            )
+        return active_events
+
+    event_rows = connection.execute(
+        """
+        SELECT event_id
+        FROM save_events
+        WHERE slot_name = ?
+        ORDER BY sort_order
+        """,
+        (slot_name,),
+    ).fetchall()
+    active_events = []
+    for row in event_rows:
+        template = event_map.get(row["event_id"])
+        if template is None:
+            raise ValueError(f"Saved event '{row['event_id']}' is not defined in the catalog.")
+        active_events.append(template)
+    return active_events
+
+
 def load_game_state(
     db_path: str | Path | None = None,
     slot_name: str = DEFAULT_SAVE_SLOT,
@@ -149,6 +269,22 @@ def load_game_state(
         if save_row is None:
             return None
 
+        run_state_row = connection.execute(
+            """
+            SELECT
+                day,
+                actions_remaining,
+                money,
+                special_chain_progress,
+                special_chain_failed,
+                offer_sequence,
+                tavern_visits_today
+            FROM save_run_state
+            WHERE slot_name = ?
+            """,
+            (slot_name,),
+        ).fetchone()
+
         card_rows = connection.execute(
             """
             SELECT
@@ -157,19 +293,11 @@ def load_game_state(
                 power_bonus,
                 current_durability,
                 nickname,
-                equipped_to_instance_id
+                equipped_to_instance_id,
+                busy_until_day
             FROM save_card_instances
             WHERE slot_name = ?
             ORDER BY instance_id
-            """,
-            (slot_name,),
-        ).fetchall()
-        event_rows = connection.execute(
-            """
-            SELECT event_id
-            FROM save_events
-            WHERE slot_name = ?
-            ORDER BY sort_order
             """,
             (slot_name,),
         ).fetchall()
@@ -184,13 +312,11 @@ def load_game_state(
         ).fetchall()
 
     catalog = build_card_catalog(db_path)
-    event_map = {event.id: event for event in build_story_events(db_path)}
-    remaining_events = []
-    for row in event_rows:
-        event = event_map.get(row["event_id"])
-        if event is None:
-            raise ValueError(f"Saved event '{row['event_id']}' is not defined in the database.")
-        remaining_events.append(event)
+    event_templates = build_story_events(db_path)
+    event_map = {event.base_template_id(): event for event in event_templates}
+
+    with connect_database(db_path) as connection:
+        remaining_events = _load_active_events(connection, slot_name, event_map)
 
     collection = {
         row["instance_id"]: CardInstance(
@@ -200,6 +326,7 @@ def load_game_state(
             current_durability=row["current_durability"],
             nickname=row["nickname"],
             equipped_to_instance_id=row["equipped_to_instance_id"],
+            busy_until_day=row["busy_until_day"],
         )
         for row in card_rows
     }
@@ -225,4 +352,12 @@ def load_game_state(
         hand=piles["hand"],
         completed_events=save_row["completed_events"],
         auto_draw_on_init=False,
+        event_library=event_map,
+        day=run_state_row["day"] if run_state_row is not None else 1,
+        money=run_state_row["money"] if run_state_row is not None else 0,
+        special_chain_progress=run_state_row["special_chain_progress"] if run_state_row is not None else 0,
+        special_chain_failed=bool(run_state_row["special_chain_failed"]) if run_state_row is not None else False,
+        offer_sequence=run_state_row["offer_sequence"] if run_state_row is not None else 0,
+        tavern_visits_today=run_state_row["tavern_visits_today"] if run_state_row is not None else 0,
+        auto_plan_day_on_init=False,
     )

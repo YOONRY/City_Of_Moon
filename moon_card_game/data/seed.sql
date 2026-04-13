@@ -50,23 +50,31 @@ INSERT OR REPLACE INTO card_tags (card_id, sort_order, tag) VALUES
     ('mask_of_mist', 1, 'covert'),
     ('mask_of_mist', 2, 'escort');
 
+UPDATE cards SET equipment_slot = 'armor' WHERE id = 'field_rations';
+UPDATE cards SET equipment_slot = 'weapon' WHERE id = 'heirloom_blade';
+UPDATE cards SET equipment_slot = 'accessory' WHERE id = 'healer_kit';
+UPDATE cards SET equipment_slot = 'weapon' WHERE id = 'rail_spike';
+UPDATE cards SET equipment_slot = 'accessory' WHERE id = 'mask_of_mist';
+
 INSERT OR REPLACE INTO events (
     id,
     sort_order,
     title,
     description,
     difficulty,
+    person_slots,
+    info_slots,
     success_delta,
     failure_delta,
     success_text,
     failure_text
 ) VALUES
-    ('market_riot', 1, '시장 중재 의뢰', '남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.', 4, 1, -1, '말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.', '중재가 늦어지며 시장 불안이 도시 전체로 번졌다.'),
-    ('broken_rail', 2, '철로 긴급 수리', '외곽과 도심을 잇는 달 철로가 파손되어 물류와 인원이 발이 묶였다.', 4, 1, -1, '철로를 임시 복구해 도시의 흐름을 다시 돌려놓았다.', '철로 복구가 지연되며 시민들의 불만이 커졌다.'),
-    ('masked_ball', 3, '가면무도회 잠입', '상류층 무도회에서 사라진 장부를 찾아 달라는 비밀 의뢰가 도착했다.', 4, 1, -1, '행사장 안쪽 기록실에 잠입해 필요한 장부를 확보했다.', '초대 절차에서 막혀 단서 없이 물러날 수밖에 없었다.'),
-    ('eclipse_shrine', 4, '월식 사당 이상 징후', '월식 직후 사당 기록 장치가 멈추고 담당자들이 불길한 소음을 들었다고 한다.', 4, 1, -1, '사당 기록을 정리하고 현장을 안정시켜 추가 피해를 막았다.', '이상 징후를 해석하지 못해 사당 일대에 불안이 남았다.'),
-    ('smuggler_tunnel', 5, '밀수 터널 추적', '뒷골목 조직이 지하 통로로 금지 물자를 옮긴다는 제보가 들어왔다.', 4, 1, -1, '숨은 경로를 짚어내 밀수선을 끊고 조직의 움직임을 묶어 냈다.', '통로를 놓치며 조직이 한발 앞서 달아났다.'),
-    ('icewind_crossing', 6, '빙풍 속 호송 의뢰', '눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.', 5, 1, -1, '혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.', '준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다.');
+    ('market_riot', 1, '시장 중재 의뢰', '남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.', 4, 1, 1, 1, -1, '말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.', '중재가 늦어지며 시장 불안이 도시 전체로 번졌다.'),
+    ('broken_rail', 2, '철로 긴급 수리', '외곽과 도심을 잇는 달 철로가 파손되어 물류와 인원이 발이 묶였다.', 4, 1, 0, 1, -1, '철로를 임시 복구해 도시의 흐름을 다시 돌려놓았다.', '철로 복구가 지연되며 시민들의 불만이 커졌다.'),
+    ('masked_ball', 3, '가면무도회 잠입', '상류층 무도회에서 사라진 장부를 찾아 달라는 비밀 의뢰가 도착했다.', 4, 1, 1, 1, -1, '행사장 안쪽 기록실에 잠입해 필요한 장부를 확보했다.', '초대 절차에서 막혀 단서 없이 물러날 수밖에 없었다.'),
+    ('eclipse_shrine', 4, '월식 사당 이상 징후', '월식 직후 사당 기록 장치가 멈추고 담당자들이 불길한 소음을 들었다고 한다.', 4, 1, 1, 1, -1, '사당 기록을 정리하고 현장을 안정시켜 추가 피해를 막았다.', '이상 징후를 해석하지 못해 사당 일대에 불안이 남았다.'),
+    ('smuggler_tunnel', 5, '밀수 터널 추적', '뒷골목 조직이 지하 통로로 금지 물자를 옮긴다는 제보가 들어왔다.', 4, 1, 1, 1, -1, '숨은 경로를 짚어내 밀수선을 끊고 조직의 움직임을 묶어 냈다.', '통로를 놓치며 조직이 한발 앞서 달아났다.'),
+    ('icewind_crossing', 6, '빙풍 속 호송 의뢰', '눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.', 5, 2, 0, 1, -1, '혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.', '준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다.');
 
 INSERT OR REPLACE INTO event_check_stats (event_id, sort_order, stat_name) VALUES
     ('market_riot', 1, 'charm'),

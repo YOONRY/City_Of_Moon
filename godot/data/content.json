@@ -1,0 +1,1759 @@
+{
+  "generatedAt": "2026-04-13T02:23:04.051621+00:00",
+  "schemaVersion": 2,
+  "statOrder": [
+    "strength",
+    "agility",
+    "intelligence",
+    "charm"
+  ],
+  "cards": [
+    {
+      "id": "back_alley_pass",
+      "name": "뒷골목 연락원 타오",
+      "category": "person",
+      "equipmentSlot": "",
+      "infoKind": "",
+      "description": "뒷골목 인맥과 잠입 실력으로 해결사의 발이 되어 주는 현장 인력.",
+      "tags": [
+        "covert",
+        "street"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 3,
+        "intelligence": 1,
+        "charm": 0
+      },
+      "maxDurability": 3,
+      "rarity": "common"
+    },
+    {
+      "id": "clockwork_drone",
+      "name": "태엽 정비사 렌",
+      "category": "person",
+      "equipmentSlot": "",
+      "infoKind": "",
+      "description": "장치와 철로를 다루는 수리 담당 해결사.",
+      "tags": [
+        "repair",
+        "fixer"
+      ],
+      "stats": {
+        "strength": 1,
+        "agility": 0,
+        "intelligence": 2,
+        "charm": 0
+      },
+      "maxDurability": 3,
+      "rarity": "common"
+    },
+    {
+      "id": "field_rations",
+      "name": "야전 보급 가방",
+      "category": "equipment",
+      "equipmentSlot": "armor",
+      "infoKind": "",
+      "description": "장기 의뢰를 버티게 해 주는 응급 보급과 간이 공구 묶음.",
+      "tags": [
+        "support",
+        "survival"
+      ],
+      "stats": {
+        "strength": 1,
+        "agility": 1,
+        "intelligence": 0,
+        "charm": 0
+      },
+      "maxDurability": 3,
+      "rarity": "common"
+    },
+    {
+      "id": "healer_kit",
+      "name": "현장 처치 키트",
+      "category": "equipment",
+      "equipmentSlot": "accessory",
+      "infoKind": "",
+      "description": "부상자 응급 처치와 동행자 보호에 특화된 현장용 장비.",
+      "tags": [
+        "support",
+        "medical"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 0,
+        "intelligence": 1,
+        "charm": 1
+      },
+      "maxDurability": 4,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "heirloom_blade",
+      "name": "가문의 검",
+      "category": "equipment",
+      "equipmentSlot": "weapon",
+      "infoKind": "",
+      "description": "위험한 의뢰에 투입되는 해결사에게 쥐여 주는 오래된 호신검.",
+      "tags": [
+        "escort",
+        "combat"
+      ],
+      "stats": {
+        "strength": 2,
+        "agility": 1,
+        "intelligence": 0,
+        "charm": 0
+      },
+      "maxDurability": 4,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "mask_of_mist",
+      "name": "안개의 가면",
+      "category": "equipment",
+      "equipmentSlot": "accessory",
+      "infoKind": "",
+      "description": "얼굴과 기척을 흐려 잠입 임무의 성공률을 높이는 보조 장비.",
+      "tags": [
+        "covert",
+        "escort"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 2,
+        "intelligence": 0,
+        "charm": 1
+      },
+      "maxDurability": 5,
+      "rarity": "rare"
+    },
+    {
+      "id": "merchant_seal",
+      "name": "상단 출입 인가서",
+      "category": "info",
+      "equipmentSlot": "",
+      "infoKind": "exclusive",
+      "description": "상류 구역과 상단 행사장에 드나들기 위한 정식 허가 문서.",
+      "tags": [
+        "permit",
+        "negotiation"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 0,
+        "intelligence": 1,
+        "charm": 4
+      },
+      "maxDurability": 2,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "moon_prayer",
+      "name": "사당 해석사 미라",
+      "category": "person",
+      "equipmentSlot": "",
+      "infoKind": "",
+      "description": "사당 기록과 의식을 읽어 사건의 배경을 정리하는 조력자.",
+      "tags": [
+        "shrine",
+        "support"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 0,
+        "intelligence": 2,
+        "charm": 2
+      },
+      "maxDurability": 3,
+      "rarity": "common"
+    },
+    {
+      "id": "oracle_lens",
+      "name": "월광 기록 렌즈",
+      "category": "info",
+      "equipmentSlot": "",
+      "infoKind": "general",
+      "description": "감춰진 흔적과 의식의 잔향을 읽어내는 조사용 렌즈 기록물.",
+      "tags": [
+        "evidence",
+        "shrine"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 0,
+        "intelligence": 3,
+        "charm": 1
+      },
+      "maxDurability": 2,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "rail_spike",
+      "name": "철로 고정구",
+      "category": "equipment",
+      "equipmentSlot": "weapon",
+      "infoKind": "",
+      "description": "불안정한 철로와 문을 임시로 고정할 수 있는 개조 장비.",
+      "tags": [
+        "repair",
+        "public"
+      ],
+      "stats": {
+        "strength": 1,
+        "agility": 0,
+        "intelligence": 1,
+        "charm": 0
+      },
+      "maxDurability": 4,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "silver_tongue",
+      "name": "교섭가 유나",
+      "category": "person",
+      "equipmentSlot": "",
+      "infoKind": "",
+      "description": "도시의 이해관계를 읽고 갈등을 말로 풀어내는 해결사.",
+      "tags": [
+        "negotiation",
+        "public"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 0,
+        "intelligence": 1,
+        "charm": 3
+      },
+      "maxDurability": 3,
+      "rarity": "common"
+    },
+    {
+      "id": "street_map",
+      "name": "하층 지도 조각",
+      "category": "info",
+      "equipmentSlot": "",
+      "infoKind": "general",
+      "description": "하층 구역의 골목과 비밀 통로가 겹겹이 표시된 오래된 지도 조각.",
+      "tags": [
+        "route",
+        "street"
+      ],
+      "stats": {
+        "strength": 0,
+        "agility": 1,
+        "intelligence": 3,
+        "charm": 0
+      },
+      "maxDurability": 2,
+      "rarity": "common"
+    }
+  ],
+  "eventTemplates": [
+    {
+      "id": "market_riot",
+      "offerId": "market_riot",
+      "templateId": "market_riot",
+      "title": "시장 중재 의뢰",
+      "description": "남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.",
+      "kind": "special",
+      "source": "story",
+      "checkStats": [
+        "charm",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "negotiation",
+        "public",
+        "street"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "permit"
+      ],
+      "rewardCardIds": [
+        "merchant_seal"
+      ],
+      "rewardNames": [
+        "상단 출입 인가서"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 8,
+      "deadlineDays": 5,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "moonlit_city",
+      "chainStep": 1,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.",
+      "failureText": "중재가 늦어지며 시장 불안이 도시 전체로 번졌다."
+    },
+    {
+      "id": "broken_rail",
+      "offerId": "broken_rail",
+      "templateId": "broken_rail",
+      "title": "철로 긴급 수리",
+      "description": "외곽과 도심을 잇는 달 철로가 파손되어 물류와 인원이 발이 묶였다.",
+      "kind": "incident",
+      "source": "street",
+      "checkStats": [
+        "strength",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "repair",
+        "route",
+        "public"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "fixer"
+      ],
+      "rewardCardIds": [
+        "rail_spike"
+      ],
+      "rewardNames": [
+        "철로 고정구"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 6,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "철로를 임시 복구해 도시의 흐름을 다시 돌려놓았다.",
+      "failureText": "철로 복구가 지연되며 시민들의 불만이 커졌다."
+    },
+    {
+      "id": "masked_ball",
+      "offerId": "masked_ball",
+      "templateId": "masked_ball",
+      "title": "가면무도회 잠입",
+      "description": "상류층 무도회에서 사라진 장부를 찾아 달라는 비밀 의뢰가 도착했다.",
+      "kind": "special",
+      "source": "story",
+      "checkStats": [
+        "agility",
+        "charm"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "covert",
+        "negotiation",
+        "permit"
+      ],
+      "requiredCardIds": [
+        "merchant_seal"
+      ],
+      "requiredCardNames": [
+        "상단 출입 인가서"
+      ],
+      "bonusTags": [
+        "street"
+      ],
+      "rewardCardIds": [
+        "mask_of_mist"
+      ],
+      "rewardNames": [
+        "안개의 가면"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 12,
+      "deadlineDays": 6,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "moonlit_city",
+      "chainStep": 2,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "행사장 안쪽 기록실에 잠입해 필요한 장부를 확보했다.",
+      "failureText": "초대 절차에서 막혀 단서 없이 물러날 수밖에 없었다."
+    },
+    {
+      "id": "eclipse_shrine",
+      "offerId": "eclipse_shrine",
+      "templateId": "eclipse_shrine",
+      "title": "월식 사당 이상 징후",
+      "description": "월식 직후 사당 기록 장치가 멈추고 담당자들이 불길한 소음을 들었다고 한다.",
+      "kind": "special",
+      "source": "story",
+      "checkStats": [
+        "intelligence",
+        "charm"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "shrine",
+        "support",
+        "repair"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "evidence"
+      ],
+      "rewardCardIds": [
+        "oracle_lens"
+      ],
+      "rewardNames": [
+        "월광 기록 렌즈"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 15,
+      "deadlineDays": 7,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "moonlit_city",
+      "chainStep": 3,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "사당 기록을 정리하고 현장을 안정시켜 추가 피해를 막았다.",
+      "failureText": "이상 징후를 해석하지 못해 사당 일대에 불안이 남았다."
+    },
+    {
+      "id": "smuggler_tunnel",
+      "offerId": "smuggler_tunnel",
+      "templateId": "smuggler_tunnel",
+      "title": "밀수 터널 추적",
+      "description": "뒷골목 조직이 지하 통로로 금지 물자를 옮긴다는 제보가 들어왔다.",
+      "kind": "incident",
+      "source": "street",
+      "checkStats": [
+        "agility",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "street",
+        "covert",
+        "route"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "evidence"
+      ],
+      "rewardCardIds": [
+        "heirloom_blade"
+      ],
+      "rewardNames": [
+        "가문의 검"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 7,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "숨은 경로를 짚어내 밀수선을 끊고 조직의 움직임을 묶어 냈다.",
+      "failureText": "통로를 놓치며 조직이 한발 앞서 달아났다."
+    },
+    {
+      "id": "icewind_crossing",
+      "offerId": "icewind_crossing",
+      "templateId": "icewind_crossing",
+      "title": "빙풍 속 호송 의뢰",
+      "description": "눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.",
+      "kind": "incident",
+      "source": "street",
+      "checkStats": [
+        "strength",
+        "charm"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "support",
+        "public",
+        "fixer"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "route"
+      ],
+      "rewardCardIds": [
+        "healer_kit"
+      ],
+      "rewardNames": [
+        "현장 처치 키트"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 10,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.",
+      "failureText": "준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다."
+    },
+    {
+      "id": "daily_message_run",
+      "offerId": "daily_message_run",
+      "templateId": "daily_message_run",
+      "title": "등불가의 전갈 운반",
+      "description": "밤거리 연락망이 끊기지 않도록 은밀하게 전갈을 이어 달라는 의뢰다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "agility",
+        "charm"
+      ],
+      "difficulty": 3,
+      "requiredTags": [
+        "street",
+        "covert"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "route"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 1,
+      "infoSlots": 1,
+      "timeCost": 1,
+      "payout": 5,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "연락망이 끊기지 않도록 전갈을 끝까지 이어 붙였다.",
+      "failureText": "연락꾼이 늦어 도시 하층의 신뢰를 조금 잃었다."
+    },
+    {
+      "id": "daily_guild_ledger",
+      "offerId": "daily_guild_ledger",
+      "templateId": "daily_guild_ledger",
+      "title": "길드 장부 정리",
+      "description": "상단과 공방 조합의 장부를 맞춰 달라는 짧지만 까다로운 실무 의뢰다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "intelligence",
+        "charm"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "negotiation",
+        "public"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "permit"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 1,
+      "infoSlots": 1,
+      "timeCost": 1,
+      "payout": 6,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "장부 차이를 정리해 상단의 의심을 잠재웠다.",
+      "failureText": "장부 정리가 틀어져 의뢰인은 만족하지 못했다."
+    },
+    {
+      "id": "daily_bodyguard_shift",
+      "offerId": "daily_bodyguard_shift",
+      "templateId": "daily_bodyguard_shift",
+      "title": "상단 호위 교대",
+      "description": "물품 교대 시간이 겹친 상단 호위 임무다. 하루를 거의 통째로 비워야 한다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "strength",
+        "charm"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "escort",
+        "public"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "support"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 2,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 9,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "호위 교대를 무사히 끝내고 상단 측 신뢰를 얻었다.",
+      "failureText": "호위선이 흔들려 의뢰 대금을 제대로 받지 못했다."
+    },
+    {
+      "id": "daily_clinic_supply",
+      "offerId": "daily_clinic_supply",
+      "templateId": "daily_clinic_supply",
+      "title": "진료소 보급 회수",
+      "description": "변두리 진료소에서 필요한 의약품 상자를 회수해 옮기는 의뢰다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "strength",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "support",
+        "medical"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "street"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 7,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "보급 상자를 무사히 회수해 진료소를 살렸다.",
+      "failureText": "보급 상자가 중간에 새며 일정이 꼬였다."
+    },
+    {
+      "id": "tavern_rumor_cache",
+      "offerId": "tavern_rumor_cache",
+      "templateId": "tavern_rumor_cache",
+      "title": "술집 소문: 밀수 창고",
+      "description": "술집에서 흘러나온 밀수 창고 소문을 따라가면 숨겨진 물건을 건질 수 있다.",
+      "kind": "incident",
+      "source": "tavern",
+      "checkStats": [
+        "intelligence",
+        "agility"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "street",
+        "evidence"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "covert"
+      ],
+      "rewardCardIds": [
+        "oracle_lens"
+      ],
+      "rewardNames": [
+        "월광 기록 렌즈"
+      ],
+      "personSlots": 1,
+      "infoSlots": 1,
+      "timeCost": 1,
+      "payout": 4,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "창고의 비밀 통로를 찾아 유용한 기록 렌즈를 손에 넣었다.",
+      "failureText": "소문은 사실이었지만 이미 누군가 먼저 치운 뒤였다."
+    },
+    {
+      "id": "tavern_backroom_duel",
+      "offerId": "tavern_backroom_duel",
+      "templateId": "tavern_backroom_duel",
+      "title": "술집 소동: 뒷방 결투",
+      "description": "술집 뒷방에서 벌어진 결투 소동에 끼어들면 인맥이나 장비를 챙길 수 있다.",
+      "kind": "incident",
+      "source": "tavern",
+      "checkStats": [
+        "strength",
+        "charm"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "combat",
+        "escort"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "public"
+      ],
+      "rewardCardIds": [
+        "heirloom_blade"
+      ],
+      "rewardNames": [
+        "가문의 검"
+      ],
+      "personSlots": 2,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 3,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "결투를 정리하고 오래된 칼 한 자루를 사례로 받았다.",
+      "failureText": "소동을 잠재우지 못하고 뒷골목의 평판만 조금 깎였다."
+    }
+  ],
+  "events": [
+    {
+      "id": "market_riot",
+      "offerId": "market_riot",
+      "templateId": "market_riot",
+      "title": "시장 중재 의뢰",
+      "description": "남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.",
+      "kind": "special",
+      "source": "story",
+      "checkStats": [
+        "charm",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "negotiation",
+        "public",
+        "street"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "permit"
+      ],
+      "rewardCardIds": [
+        "merchant_seal"
+      ],
+      "rewardNames": [
+        "상단 출입 인가서"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 8,
+      "deadlineDays": 5,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "moonlit_city",
+      "chainStep": 1,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.",
+      "failureText": "중재가 늦어지며 시장 불안이 도시 전체로 번졌다."
+    },
+    {
+      "id": "broken_rail",
+      "offerId": "broken_rail",
+      "templateId": "broken_rail",
+      "title": "철로 긴급 수리",
+      "description": "외곽과 도심을 잇는 달 철로가 파손되어 물류와 인원이 발이 묶였다.",
+      "kind": "incident",
+      "source": "street",
+      "checkStats": [
+        "strength",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "repair",
+        "route",
+        "public"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "fixer"
+      ],
+      "rewardCardIds": [
+        "rail_spike"
+      ],
+      "rewardNames": [
+        "철로 고정구"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 6,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "철로를 임시 복구해 도시의 흐름을 다시 돌려놓았다.",
+      "failureText": "철로 복구가 지연되며 시민들의 불만이 커졌다."
+    },
+    {
+      "id": "masked_ball",
+      "offerId": "masked_ball",
+      "templateId": "masked_ball",
+      "title": "가면무도회 잠입",
+      "description": "상류층 무도회에서 사라진 장부를 찾아 달라는 비밀 의뢰가 도착했다.",
+      "kind": "special",
+      "source": "story",
+      "checkStats": [
+        "agility",
+        "charm"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "covert",
+        "negotiation",
+        "permit"
+      ],
+      "requiredCardIds": [
+        "merchant_seal"
+      ],
+      "requiredCardNames": [
+        "상단 출입 인가서"
+      ],
+      "bonusTags": [
+        "street"
+      ],
+      "rewardCardIds": [
+        "mask_of_mist"
+      ],
+      "rewardNames": [
+        "안개의 가면"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 12,
+      "deadlineDays": 6,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "moonlit_city",
+      "chainStep": 2,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "행사장 안쪽 기록실에 잠입해 필요한 장부를 확보했다.",
+      "failureText": "초대 절차에서 막혀 단서 없이 물러날 수밖에 없었다."
+    },
+    {
+      "id": "eclipse_shrine",
+      "offerId": "eclipse_shrine",
+      "templateId": "eclipse_shrine",
+      "title": "월식 사당 이상 징후",
+      "description": "월식 직후 사당 기록 장치가 멈추고 담당자들이 불길한 소음을 들었다고 한다.",
+      "kind": "special",
+      "source": "story",
+      "checkStats": [
+        "intelligence",
+        "charm"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "shrine",
+        "support",
+        "repair"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "evidence"
+      ],
+      "rewardCardIds": [
+        "oracle_lens"
+      ],
+      "rewardNames": [
+        "월광 기록 렌즈"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 15,
+      "deadlineDays": 7,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "moonlit_city",
+      "chainStep": 3,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "사당 기록을 정리하고 현장을 안정시켜 추가 피해를 막았다.",
+      "failureText": "이상 징후를 해석하지 못해 사당 일대에 불안이 남았다."
+    },
+    {
+      "id": "smuggler_tunnel",
+      "offerId": "smuggler_tunnel",
+      "templateId": "smuggler_tunnel",
+      "title": "밀수 터널 추적",
+      "description": "뒷골목 조직이 지하 통로로 금지 물자를 옮긴다는 제보가 들어왔다.",
+      "kind": "incident",
+      "source": "street",
+      "checkStats": [
+        "agility",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "street",
+        "covert",
+        "route"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "evidence"
+      ],
+      "rewardCardIds": [
+        "heirloom_blade"
+      ],
+      "rewardNames": [
+        "가문의 검"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 7,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "숨은 경로를 짚어내 밀수선을 끊고 조직의 움직임을 묶어 냈다.",
+      "failureText": "통로를 놓치며 조직이 한발 앞서 달아났다."
+    },
+    {
+      "id": "icewind_crossing",
+      "offerId": "icewind_crossing",
+      "templateId": "icewind_crossing",
+      "title": "빙풍 속 호송 의뢰",
+      "description": "눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.",
+      "kind": "incident",
+      "source": "street",
+      "checkStats": [
+        "strength",
+        "charm"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "support",
+        "public",
+        "fixer"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "route"
+      ],
+      "rewardCardIds": [
+        "healer_kit"
+      ],
+      "rewardNames": [
+        "현장 처치 키트"
+      ],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 10,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 1,
+      "failureDelta": -1,
+      "successText": "혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.",
+      "failureText": "준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다."
+    },
+    {
+      "id": "daily_message_run",
+      "offerId": "daily_message_run",
+      "templateId": "daily_message_run",
+      "title": "등불가의 전갈 운반",
+      "description": "밤거리 연락망이 끊기지 않도록 은밀하게 전갈을 이어 달라는 의뢰다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "agility",
+        "charm"
+      ],
+      "difficulty": 3,
+      "requiredTags": [
+        "street",
+        "covert"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "route"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 1,
+      "infoSlots": 1,
+      "timeCost": 1,
+      "payout": 5,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "연락망이 끊기지 않도록 전갈을 끝까지 이어 붙였다.",
+      "failureText": "연락꾼이 늦어 도시 하층의 신뢰를 조금 잃었다."
+    },
+    {
+      "id": "daily_guild_ledger",
+      "offerId": "daily_guild_ledger",
+      "templateId": "daily_guild_ledger",
+      "title": "길드 장부 정리",
+      "description": "상단과 공방 조합의 장부를 맞춰 달라는 짧지만 까다로운 실무 의뢰다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "intelligence",
+        "charm"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "negotiation",
+        "public"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "permit"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 1,
+      "infoSlots": 1,
+      "timeCost": 1,
+      "payout": 6,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "장부 차이를 정리해 상단의 의심을 잠재웠다.",
+      "failureText": "장부 정리가 틀어져 의뢰인은 만족하지 못했다."
+    },
+    {
+      "id": "daily_bodyguard_shift",
+      "offerId": "daily_bodyguard_shift",
+      "templateId": "daily_bodyguard_shift",
+      "title": "상단 호위 교대",
+      "description": "물품 교대 시간이 겹친 상단 호위 임무다. 하루를 거의 통째로 비워야 한다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "strength",
+        "charm"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "escort",
+        "public"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "support"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 2,
+      "infoSlots": 0,
+      "timeCost": 2,
+      "payout": 9,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "호위 교대를 무사히 끝내고 상단 측 신뢰를 얻었다.",
+      "failureText": "호위선이 흔들려 의뢰 대금을 제대로 받지 못했다."
+    },
+    {
+      "id": "daily_clinic_supply",
+      "offerId": "daily_clinic_supply",
+      "templateId": "daily_clinic_supply",
+      "title": "진료소 보급 회수",
+      "description": "변두리 진료소에서 필요한 의약품 상자를 회수해 옮기는 의뢰다.",
+      "kind": "daily",
+      "source": "board",
+      "checkStats": [
+        "strength",
+        "intelligence"
+      ],
+      "difficulty": 4,
+      "requiredTags": [
+        "support",
+        "medical"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "street"
+      ],
+      "rewardCardIds": [],
+      "rewardNames": [],
+      "personSlots": 1,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 7,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "보급 상자를 무사히 회수해 진료소를 살렸다.",
+      "failureText": "보급 상자가 중간에 새며 일정이 꼬였다."
+    },
+    {
+      "id": "tavern_rumor_cache",
+      "offerId": "tavern_rumor_cache",
+      "templateId": "tavern_rumor_cache",
+      "title": "술집 소문: 밀수 창고",
+      "description": "술집에서 흘러나온 밀수 창고 소문을 따라가면 숨겨진 물건을 건질 수 있다.",
+      "kind": "incident",
+      "source": "tavern",
+      "checkStats": [
+        "intelligence",
+        "agility"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "street",
+        "evidence"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "covert"
+      ],
+      "rewardCardIds": [
+        "oracle_lens"
+      ],
+      "rewardNames": [
+        "월광 기록 렌즈"
+      ],
+      "personSlots": 1,
+      "infoSlots": 1,
+      "timeCost": 1,
+      "payout": 4,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "창고의 비밀 통로를 찾아 유용한 기록 렌즈를 손에 넣었다.",
+      "failureText": "소문은 사실이었지만 이미 누군가 먼저 치운 뒤였다."
+    },
+    {
+      "id": "tavern_backroom_duel",
+      "offerId": "tavern_backroom_duel",
+      "templateId": "tavern_backroom_duel",
+      "title": "술집 소동: 뒷방 결투",
+      "description": "술집 뒷방에서 벌어진 결투 소동에 끼어들면 인맥이나 장비를 챙길 수 있다.",
+      "kind": "incident",
+      "source": "tavern",
+      "checkStats": [
+        "strength",
+        "charm"
+      ],
+      "difficulty": 5,
+      "requiredTags": [
+        "combat",
+        "escort"
+      ],
+      "requiredCardIds": [],
+      "requiredCardNames": [],
+      "bonusTags": [
+        "public"
+      ],
+      "rewardCardIds": [
+        "heirloom_blade"
+      ],
+      "rewardNames": [
+        "가문의 검"
+      ],
+      "personSlots": 2,
+      "infoSlots": 0,
+      "timeCost": 1,
+      "payout": 3,
+      "deadlineDays": 1,
+      "introducedDay": 1,
+      "deadlineDay": 0,
+      "storylineId": "",
+      "chainStep": 0,
+      "successDelta": 0,
+      "failureDelta": 0,
+      "successText": "결투를 정리하고 오래된 칼 한 자루를 사례로 받았다.",
+      "failureText": "소동을 잠재우지 못하고 뒷골목의 평판만 조금 깎였다."
+    }
+  ],
+  "starterCollection": [
+    {
+      "instanceId": "starter_back_alley_pass_1",
+      "cardId": "back_alley_pass",
+      "powerBonus": 1,
+      "currentDurability": 3,
+      "nickname": "",
+      "equippedToInstanceId": "",
+      "busyUntilDay": 0
+    },
+    {
+      "instanceId": "starter_clockwork_drone_1",
+      "cardId": "clockwork_drone",
+      "powerBonus": 0,
+      "currentDurability": 3,
+      "nickname": "",
+      "equippedToInstanceId": "",
+      "busyUntilDay": 0
+    },
+    {
+      "instanceId": "starter_field_rations_1",
+      "cardId": "field_rations",
+      "powerBonus": 0,
+      "currentDurability": 3,
+      "nickname": "",
+      "equippedToInstanceId": "starter_clockwork_drone_1",
+      "busyUntilDay": 0
+    },
+    {
+      "instanceId": "starter_moon_prayer_1",
+      "cardId": "moon_prayer",
+      "powerBonus": 0,
+      "currentDurability": 3,
+      "nickname": "",
+      "equippedToInstanceId": "",
+      "busyUntilDay": 0
+    },
+    {
+      "instanceId": "starter_silver_tongue_1",
+      "cardId": "silver_tongue",
+      "powerBonus": 0,
+      "currentDurability": 3,
+      "nickname": "",
+      "equippedToInstanceId": "",
+      "busyUntilDay": 0
+    },
+    {
+      "instanceId": "starter_street_map_1",
+      "cardId": "street_map",
+      "powerBonus": 0,
+      "currentDurability": 2,
+      "nickname": "",
+      "equippedToInstanceId": "",
+      "busyUntilDay": 0
+    }
+  ],
+  "previewState": {
+    "day": 1,
+    "money": 8,
+    "stability": 3,
+    "weeklyTaxAmount": 12,
+    "daysUntilTax": 7,
+    "completedEvents": 0,
+    "uniqueCards": 6,
+    "totalInstances": 6,
+    "readyPeople": 4,
+    "handOrder": [
+      "starter_silver_tongue_1",
+      "starter_back_alley_pass_1",
+      "starter_moon_prayer_1",
+      "starter_clockwork_drone_1",
+      "starter_street_map_1"
+    ],
+    "collection": [
+      {
+        "instanceId": "starter_silver_tongue_1",
+        "cardId": "silver_tongue",
+        "name": "교섭가 유나",
+        "category": "person",
+        "equipmentSlot": "",
+        "infoKind": "",
+        "rarity": "common",
+        "tags": [
+          "negotiation",
+          "public"
+        ],
+        "description": "도시의 이해관계를 읽고 갈등을 말로 풀어내는 해결사.",
+        "powerBonus": 0,
+        "baseStats": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 1,
+          "charm": 3
+        },
+        "stats": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 1,
+          "charm": 3
+        },
+        "isUsable": true,
+        "isCommitted": false,
+        "busyUntilDay": 0,
+        "busyTurnsRemaining": 0,
+        "isInHand": true,
+        "equippedToInstanceId": "",
+        "equippedToName": "",
+        "attachedEquipmentNames": [],
+        "attachedEquipment": [],
+        "equipmentBonus": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 0,
+          "charm": 0
+        }
+      },
+      {
+        "instanceId": "starter_back_alley_pass_1",
+        "cardId": "back_alley_pass",
+        "name": "뒷골목 연락원 타오",
+        "category": "person",
+        "equipmentSlot": "",
+        "infoKind": "",
+        "rarity": "common",
+        "tags": [
+          "covert",
+          "street"
+        ],
+        "description": "뒷골목 인맥과 잠입 실력으로 해결사의 발이 되어 주는 현장 인력.",
+        "powerBonus": 1,
+        "baseStats": {
+          "strength": 0,
+          "agility": 3,
+          "intelligence": 1,
+          "charm": 0
+        },
+        "stats": {
+          "strength": 0,
+          "agility": 3,
+          "intelligence": 1,
+          "charm": 0
+        },
+        "isUsable": true,
+        "isCommitted": false,
+        "busyUntilDay": 0,
+        "busyTurnsRemaining": 0,
+        "isInHand": true,
+        "equippedToInstanceId": "",
+        "equippedToName": "",
+        "attachedEquipmentNames": [],
+        "attachedEquipment": [],
+        "equipmentBonus": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 0,
+          "charm": 0
+        }
+      },
+      {
+        "instanceId": "starter_moon_prayer_1",
+        "cardId": "moon_prayer",
+        "name": "사당 해석사 미라",
+        "category": "person",
+        "equipmentSlot": "",
+        "infoKind": "",
+        "rarity": "common",
+        "tags": [
+          "shrine",
+          "support"
+        ],
+        "description": "사당 기록과 의식을 읽어 사건의 배경을 정리하는 조력자.",
+        "powerBonus": 0,
+        "baseStats": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 2,
+          "charm": 2
+        },
+        "stats": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 2,
+          "charm": 2
+        },
+        "isUsable": true,
+        "isCommitted": false,
+        "busyUntilDay": 0,
+        "busyTurnsRemaining": 0,
+        "isInHand": true,
+        "equippedToInstanceId": "",
+        "equippedToName": "",
+        "attachedEquipmentNames": [],
+        "attachedEquipment": [],
+        "equipmentBonus": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 0,
+          "charm": 0
+        }
+      },
+      {
+        "instanceId": "starter_clockwork_drone_1",
+        "cardId": "clockwork_drone",
+        "name": "태엽 정비사 렌",
+        "category": "person",
+        "equipmentSlot": "",
+        "infoKind": "",
+        "rarity": "common",
+        "tags": [
+          "repair",
+          "fixer"
+        ],
+        "description": "장치와 철로를 다루는 수리 담당 해결사.",
+        "powerBonus": 0,
+        "baseStats": {
+          "strength": 1,
+          "agility": 0,
+          "intelligence": 2,
+          "charm": 0
+        },
+        "stats": {
+          "strength": 2,
+          "agility": 1,
+          "intelligence": 2,
+          "charm": 0
+        },
+        "isUsable": true,
+        "isCommitted": false,
+        "busyUntilDay": 0,
+        "busyTurnsRemaining": 0,
+        "isInHand": true,
+        "equippedToInstanceId": "",
+        "equippedToName": "",
+        "attachedEquipmentNames": [
+          "야전 보급 가방"
+        ],
+        "attachedEquipment": [
+          {
+            "instanceId": "starter_field_rations_1",
+            "cardId": "field_rations",
+            "name": "야전 보급 가방",
+            "slot": "armor",
+            "stats": {
+              "strength": 1,
+              "agility": 1,
+              "intelligence": 0,
+              "charm": 0
+            }
+          }
+        ],
+        "equipmentBonus": {
+          "strength": 1,
+          "agility": 1,
+          "intelligence": 0,
+          "charm": 0
+        }
+      },
+      {
+        "instanceId": "starter_street_map_1",
+        "cardId": "street_map",
+        "name": "하층 지도 조각",
+        "category": "info",
+        "equipmentSlot": "",
+        "infoKind": "general",
+        "rarity": "common",
+        "tags": [
+          "route",
+          "street"
+        ],
+        "description": "하층 구역의 골목과 비밀 통로가 겹겹이 표시된 오래된 지도 조각.",
+        "powerBonus": 0,
+        "baseStats": {
+          "strength": 0,
+          "agility": 1,
+          "intelligence": 3,
+          "charm": 0
+        },
+        "stats": {
+          "strength": 0,
+          "agility": 1,
+          "intelligence": 3,
+          "charm": 0
+        },
+        "isUsable": true,
+        "isCommitted": false,
+        "busyUntilDay": 0,
+        "busyTurnsRemaining": 0,
+        "isInHand": true,
+        "equippedToInstanceId": "",
+        "equippedToName": "",
+        "attachedEquipmentNames": [],
+        "attachedEquipment": [],
+        "equipmentBonus": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 0,
+          "charm": 0
+        }
+      },
+      {
+        "instanceId": "starter_field_rations_1",
+        "cardId": "field_rations",
+        "name": "야전 보급 가방",
+        "category": "equipment",
+        "equipmentSlot": "armor",
+        "infoKind": "",
+        "rarity": "common",
+        "tags": [
+          "support",
+          "survival"
+        ],
+        "description": "장기 의뢰를 버티게 해 주는 응급 보급과 간이 공구 묶음.",
+        "powerBonus": 0,
+        "baseStats": {
+          "strength": 1,
+          "agility": 1,
+          "intelligence": 0,
+          "charm": 0
+        },
+        "stats": {
+          "strength": 1,
+          "agility": 1,
+          "intelligence": 0,
+          "charm": 0
+        },
+        "isUsable": true,
+        "isCommitted": false,
+        "busyUntilDay": 0,
+        "busyTurnsRemaining": 0,
+        "isInHand": false,
+        "equippedToInstanceId": "starter_clockwork_drone_1",
+        "equippedToName": "태엽 정비사 렌",
+        "attachedEquipmentNames": [],
+        "attachedEquipment": [],
+        "equipmentBonus": {
+          "strength": 0,
+          "agility": 0,
+          "intelligence": 0,
+          "charm": 0
+        }
+      }
+    ],
+    "events": [
+      {
+        "id": "icewind_crossing",
+        "offerId": "icewind_crossing__d1_n3",
+        "templateId": "icewind_crossing",
+        "title": "빙풍 속 호송 의뢰",
+        "description": "눈보라가 몰아치는 관문 밖에서 의뢰인이 구조와 동행을 요청하고 있다.",
+        "kind": "incident",
+        "source": "street",
+        "checkStats": [
+          "strength",
+          "charm"
+        ],
+        "difficulty": 5,
+        "requiredTags": [
+          "support",
+          "public",
+          "fixer"
+        ],
+        "requiredCardIds": [],
+        "requiredCardNames": [],
+        "bonusTags": [
+          "route"
+        ],
+        "rewardCardIds": [
+          "healer_kit"
+        ],
+        "rewardNames": [
+          "현장 처치 키트"
+        ],
+        "personSlots": 1,
+        "infoSlots": 0,
+        "timeCost": 2,
+        "payout": 10,
+        "deadlineDays": 1,
+        "introducedDay": 1,
+        "deadlineDay": 1,
+        "storylineId": "",
+        "chainStep": 0,
+        "successDelta": 1,
+        "failureDelta": -1,
+        "successText": "혼란 속에서도 의뢰인을 지켜내며 관문까지 안전하게 데려왔다.",
+        "failureText": "준비가 모자라 호송이 흔들렸고 관문 수비대의 신뢰를 잃었다."
+      },
+      {
+        "id": "daily_guild_ledger",
+        "offerId": "daily_guild_ledger__d1_n2",
+        "templateId": "daily_guild_ledger",
+        "title": "길드 장부 정리",
+        "description": "상단과 공방 조합의 장부를 맞춰 달라는 짧지만 까다로운 실무 의뢰다.",
+        "kind": "daily",
+        "source": "board",
+        "checkStats": [
+          "intelligence",
+          "charm"
+        ],
+        "difficulty": 4,
+        "requiredTags": [
+          "negotiation",
+          "public"
+        ],
+        "requiredCardIds": [],
+        "requiredCardNames": [],
+        "bonusTags": [
+          "permit"
+        ],
+        "rewardCardIds": [],
+        "rewardNames": [],
+        "personSlots": 1,
+        "infoSlots": 1,
+        "timeCost": 1,
+        "payout": 6,
+        "deadlineDays": 1,
+        "introducedDay": 1,
+        "deadlineDay": 1,
+        "storylineId": "",
+        "chainStep": 0,
+        "successDelta": 0,
+        "failureDelta": 0,
+        "successText": "장부 차이를 정리해 상단의 의심을 잠재웠다.",
+        "failureText": "장부 정리가 틀어져 의뢰인은 만족하지 못했다."
+      },
+      {
+        "id": "daily_clinic_supply",
+        "offerId": "daily_clinic_supply__d1_n1",
+        "templateId": "daily_clinic_supply",
+        "title": "진료소 보급 회수",
+        "description": "변두리 진료소에서 필요한 의약품 상자를 회수해 옮기는 의뢰다.",
+        "kind": "daily",
+        "source": "board",
+        "checkStats": [
+          "strength",
+          "intelligence"
+        ],
+        "difficulty": 4,
+        "requiredTags": [
+          "support",
+          "medical"
+        ],
+        "requiredCardIds": [],
+        "requiredCardNames": [],
+        "bonusTags": [
+          "street"
+        ],
+        "rewardCardIds": [],
+        "rewardNames": [],
+        "personSlots": 1,
+        "infoSlots": 0,
+        "timeCost": 1,
+        "payout": 7,
+        "deadlineDays": 1,
+        "introducedDay": 1,
+        "deadlineDay": 1,
+        "storylineId": "",
+        "chainStep": 0,
+        "successDelta": 0,
+        "failureDelta": 0,
+        "successText": "보급 상자를 무사히 회수해 진료소를 살렸다.",
+        "failureText": "보급 상자가 중간에 새며 일정이 꼬였다."
+      },
+      {
+        "id": "market_riot",
+        "offerId": "market_riot__d1_n4",
+        "templateId": "market_riot",
+        "title": "시장 중재 의뢰",
+        "description": "남부 시장에서 상단과 주민이 충돌 직전이다. 해결사 사무소로 급한 중재 의뢰가 들어왔다.",
+        "kind": "special",
+        "source": "story",
+        "checkStats": [
+          "charm",
+          "intelligence"
+        ],
+        "difficulty": 4,
+        "requiredTags": [
+          "negotiation",
+          "public",
+          "street"
+        ],
+        "requiredCardIds": [],
+        "requiredCardNames": [],
+        "bonusTags": [
+          "permit"
+        ],
+        "rewardCardIds": [
+          "merchant_seal"
+        ],
+        "rewardNames": [
+          "상단 출입 인가서"
+        ],
+        "personSlots": 1,
+        "infoSlots": 0,
+        "timeCost": 2,
+        "payout": 8,
+        "deadlineDays": 5,
+        "introducedDay": 1,
+        "deadlineDay": 5,
+        "storylineId": "moonlit_city",
+        "chainStep": 1,
+        "successDelta": 1,
+        "failureDelta": -1,
+        "successText": "말과 현장 대응이 통하며 시장은 간신히 안정을 되찾았다.",
+        "failureText": "중재가 늦어지며 시장 불안이 도시 전체로 번졌다."
+      }
+    ]
+  }
+}

@@ -7,7 +7,7 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DEFAULT_DATABASE_FILENAME = "city_of_moon.sqlite3"
-CURRENT_SCHEMA_VERSION = 5
+CURRENT_SCHEMA_VERSION = 8
 
 
 def get_default_database_path() -> Path:
@@ -32,6 +32,10 @@ def _table_columns(connection: sqlite3.Connection, table_name: str) -> set[str]:
 def _migrate_existing_data(connection: sqlite3.Connection) -> None:
     if _table_exists(connection, "cards"):
         card_columns = _table_columns(connection, "cards")
+        if "equipment_slot" not in card_columns:
+            connection.execute(
+                "ALTER TABLE cards ADD COLUMN equipment_slot TEXT NOT NULL DEFAULT ''"
+            )
         if "max_durability" not in card_columns:
             connection.execute(
                 "ALTER TABLE cards ADD COLUMN max_durability INTEGER NOT NULL DEFAULT 3"
@@ -53,6 +57,16 @@ def _migrate_existing_data(connection: sqlite3.Connection) -> None:
         connection.execute(
             "ALTER TABLE events ADD COLUMN difficulty INTEGER NOT NULL DEFAULT 3"
         )
+    if _table_exists(connection, "events"):
+        event_columns = _table_columns(connection, "events")
+        if "person_slots" not in event_columns:
+            connection.execute(
+                "ALTER TABLE events ADD COLUMN person_slots INTEGER NOT NULL DEFAULT 1"
+            )
+        if "info_slots" not in event_columns:
+            connection.execute(
+                "ALTER TABLE events ADD COLUMN info_slots INTEGER NOT NULL DEFAULT 0"
+            )
 
     if not _table_exists(connection, "starter_card_instances"):
         return
@@ -61,6 +75,10 @@ def _migrate_existing_data(connection: sqlite3.Connection) -> None:
         connection.execute(
             "ALTER TABLE starter_card_instances ADD COLUMN equipped_to_instance_id TEXT NOT NULL DEFAULT ''"
         )
+    if "busy_until_day" not in _table_columns(connection, "starter_card_instances"):
+        connection.execute(
+            "ALTER TABLE starter_card_instances ADD COLUMN busy_until_day INTEGER NOT NULL DEFAULT 0"
+        )
 
     if _table_exists(connection, "save_card_instances") and "equipped_to_instance_id" not in _table_columns(
         connection,
@@ -68,6 +86,13 @@ def _migrate_existing_data(connection: sqlite3.Connection) -> None:
     ):
         connection.execute(
             "ALTER TABLE save_card_instances ADD COLUMN equipped_to_instance_id TEXT NOT NULL DEFAULT ''"
+        )
+    if _table_exists(connection, "save_card_instances") and "busy_until_day" not in _table_columns(
+        connection,
+        "save_card_instances",
+    ):
+        connection.execute(
+            "ALTER TABLE save_card_instances ADD COLUMN busy_until_day INTEGER NOT NULL DEFAULT 0"
         )
 
     starter_instance_count = connection.execute(

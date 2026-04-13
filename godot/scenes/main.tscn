@@ -1,0 +1,226 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.027451, 0.086275, 0.152941, 1)
+
+[node name="RootMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Frame" type="VBoxContainer" parent="RootMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TopBar" type="PanelContainer" parent="RootMargin/Frame"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TopMargin" type="MarginContainer" parent="RootMargin/Frame/TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="TopRow" type="HBoxContainer" parent="RootMargin/Frame/TopBar/TopMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleBlock" type="VBoxContainer" parent="RootMargin/Frame/TopBar/TopMargin/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="RootMargin/Frame/TopBar/TopMargin/TopRow/TitleBlock"]
+layout_mode = 2
+text = "시티 오브 문"
+
+[node name="SubtitleLabel" type="Label" parent="RootMargin/Frame/TopBar/TopMargin/TopRow/TitleBlock"]
+layout_mode = 2
+text = "Godot 시작 런 프로토타입"
+
+[node name="StatusLabel" type="Label" parent="RootMargin/Frame/TopBar/TopMargin/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+text = "Loading..."
+
+[node name="RefreshButton" type="Button" parent="RootMargin/Frame/TopBar/TopMargin/TopRow"]
+layout_mode = 2
+text = "새로고침"
+
+[node name="Body" type="HBoxContainer" parent="RootMargin/Frame"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="MapPanel" type="PanelContainer" parent="RootMargin/Frame/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MapMargin" type="MarginContainer" parent="RootMargin/Frame/Body/MapPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="MapStack" type="VBoxContainer" parent="RootMargin/Frame/Body/MapPanel/MapMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="MapHeader" type="Label" parent="RootMargin/Frame/Body/MapPanel/MapMargin/MapStack"]
+layout_mode = 2
+text = "의뢰 지도"
+
+[node name="MapSubheader" type="Label" parent="RootMargin/Frame/Body/MapPanel/MapMargin/MapStack"]
+layout_mode = 2
+text = "현재 시작 런에 열린 의뢰들"
+
+[node name="MapCanvas" type="Control" parent="RootMargin/Frame/Body/MapPanel/MapMargin/MapStack"]
+custom_minimum_size = Vector2(0, 480)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DetailPanel" type="PanelContainer" parent="RootMargin/Frame/Body"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailMargin" type="MarginContainer" parent="RootMargin/Frame/Body/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="DetailStack" type="VBoxContainer" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DetailEyebrow" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+text = "집중 의뢰"
+
+[node name="DetailTitle" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+text = "-"
+
+[node name="DetailDescription" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="DetailCheck" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="DetailRequirement" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="DetailReward" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="TagFlow" type="FlowContainer" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="SlotFlow" type="FlowContainer" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="InspectorDivider" type="HSeparator" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+
+[node name="InspectorEyebrow" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+text = "선택 카드"
+
+[node name="InspectorTitle" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+text = "-"
+
+[node name="InspectorMeta" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="InspectorStats" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="InspectorDescription" type="Label" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="EquipmentFlow" type="FlowContainer" parent="RootMargin/Frame/Body/DetailPanel/DetailMargin/DetailStack"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="RailPanel" type="PanelContainer" parent="RootMargin/Frame"]
+custom_minimum_size = Vector2(0, 230)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RailMargin" type="MarginContainer" parent="RootMargin/Frame/RailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="RailStack" type="VBoxContainer" parent="RootMargin/Frame/RailPanel/RailMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RailHeader" type="Label" parent="RootMargin/Frame/RailPanel/RailMargin/RailStack"]
+layout_mode = 2
+text = "보유 카드"
+
+[node name="RailScroll" type="ScrollContainer" parent="RootMargin/Frame/RailPanel/RailMargin/RailStack"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 1
+vertical_scroll_mode = 0
+
+[node name="CardRail" type="HBoxContainer" parent="RootMargin/Frame/RailPanel/RailMargin/RailStack/RailScroll"]
+layout_mode = 2
+theme_override_constants/separation = 12

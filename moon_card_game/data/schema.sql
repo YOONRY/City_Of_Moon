@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS cards (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     category TEXT NOT NULL,
+    equipment_slot TEXT NOT NULL DEFAULT '' CHECK (equipment_slot IN ('', 'weapon', 'armor', 'accessory')),
     info_kind TEXT NOT NULL DEFAULT '' CHECK (info_kind IN ('', 'general', 'exclusive')),
     description TEXT NOT NULL,
     strength INTEGER NOT NULL DEFAULT 0 CHECK (strength >= 0),
@@ -29,6 +30,8 @@ CREATE TABLE IF NOT EXISTS events (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     difficulty INTEGER NOT NULL DEFAULT 3 CHECK (difficulty >= 0),
+    person_slots INTEGER NOT NULL DEFAULT 1 CHECK (person_slots >= 0),
+    info_slots INTEGER NOT NULL DEFAULT 0 CHECK (info_slots >= 0),
     success_delta INTEGER NOT NULL DEFAULT 1,
     failure_delta INTEGER NOT NULL DEFAULT -1,
     success_text TEXT NOT NULL DEFAULT '',
@@ -90,6 +93,7 @@ CREATE TABLE IF NOT EXISTS starter_card_instances (
     current_durability INTEGER NOT NULL CHECK (current_durability >= 0),
     nickname TEXT NOT NULL DEFAULT '',
     equipped_to_instance_id TEXT NOT NULL DEFAULT '',
+    busy_until_day INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (card_id) REFERENCES cards(id)
 );
 
@@ -109,9 +113,22 @@ CREATE TABLE IF NOT EXISTS save_card_instances (
     current_durability INTEGER NOT NULL CHECK (current_durability >= 0),
     nickname TEXT NOT NULL DEFAULT '',
     equipped_to_instance_id TEXT NOT NULL DEFAULT '',
+    busy_until_day INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (slot_name, instance_id),
     FOREIGN KEY (slot_name) REFERENCES save_slots(slot_name) ON DELETE CASCADE,
     FOREIGN KEY (card_id) REFERENCES cards(id)
+);
+
+CREATE TABLE IF NOT EXISTS save_run_state (
+    slot_name TEXT PRIMARY KEY,
+    day INTEGER NOT NULL,
+    actions_remaining INTEGER NOT NULL,
+    money INTEGER NOT NULL,
+    special_chain_progress INTEGER NOT NULL DEFAULT 0,
+    special_chain_failed INTEGER NOT NULL DEFAULT 0,
+    offer_sequence INTEGER NOT NULL DEFAULT 0,
+    tavern_visits_today INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (slot_name) REFERENCES save_slots(slot_name) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS save_events (
@@ -121,6 +138,17 @@ CREATE TABLE IF NOT EXISTS save_events (
     PRIMARY KEY (slot_name, sort_order),
     FOREIGN KEY (slot_name) REFERENCES save_slots(slot_name) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events(id)
+);
+
+CREATE TABLE IF NOT EXISTS save_event_offers (
+    slot_name TEXT NOT NULL,
+    sort_order INTEGER NOT NULL,
+    offer_id TEXT NOT NULL,
+    template_id TEXT NOT NULL,
+    introduced_day INTEGER NOT NULL,
+    deadline_day INTEGER NOT NULL,
+    PRIMARY KEY (slot_name, sort_order),
+    FOREIGN KEY (slot_name) REFERENCES save_slots(slot_name) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS save_piles (

@@ -54,11 +54,11 @@ select {
 .top-bar {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
   gap: 8px;
   align-items: center;
   min-height: 56px;
-  padding: 8px 64px 8px 12px;
+  padding: 8px 118px 8px 12px;
   border: 1px solid rgba(214, 180, 109, 0.42);
   border-radius: 18px;
   background:
@@ -107,6 +107,17 @@ select {
 
 .status-strip {
   justify-content: center;
+}
+
+.top-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.turn-end-button {
+  padding: 9px 14px;
+  font-size: 0.82rem;
+  white-space: nowrap;
 }
 
 .status-chip,
@@ -1019,7 +1030,12 @@ select {
   }
 
   .top-bar {
+    grid-template-columns: 1fr;
     padding-right: 58px;
+  }
+
+  .top-actions {
+    justify-content: flex-start;
   }
 
   .board-layout {
